@@ -26,4 +26,8 @@ defmodule JSXTest do
     assert(JSX.decode("[\"hallo\", \"world\"]") == ["hallo", "world"])
   end
   
+  test "simple object" do
+    assert(JSX.decode("{\"key\": true}") == [key: true])
+  end
+  
 end
