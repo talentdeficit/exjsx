@@ -30,4 +30,19 @@ defmodule JSXTest do
     assert(JSX.decode("{\"key\": true}") == [key: true])
   end
   
+  test "compound object" do
+    assert(JSX.decode(
+      "{\"a\": [ true, false, null ], \"b\": \"hallo world\", \"c\": {
+        \"x\": [ 1,2,3 ], \"y\": {}, \"z\": [[[]]]
+      }}") == [
+        a: [true,false,nil],
+        b: "hallo world",
+        c: [
+          x: [1,2,3],
+          y: [{}],
+          z: [[[]]]
+        ]
+      ]
+    )
+  end
 end
