@@ -1,10 +1,15 @@
 defmodule JSX do
-  def json_to_list(json) do
-    decode(json)
+  def json_to_list(json, opts // []) do
+    decode(json, opts)
   end
   
-  def decode(json) do
-    :jsx.decoder(JSX.Decoder, [], []).(json)
+  def decode(json, opts // []) do
+    :jsx.decoder(JSX.Decoder, [], opts).(json)
+  end
+  
+  def encode(term, opts // []) do
+    parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
+    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
   end
    
   defmodule Decoder do
@@ -12,9 +17,6 @@ defmodule JSX do
       :jsx_to_term.init([])
     end
 
-    # this is the main deviation from `jsx'. all keys are returned as utf8 atoms
-    # to ensure the returned object representation can be used with the `Keyword'
-    # module
     def handle_event({:key, key}, {terms, config}) do
       {[{:key, format_key(key)}] ++ terms, config}
     end
@@ -33,6 +35,21 @@ defmodule JSX do
     
     defp format_key(key) do
       :erlang.binary_to_atom(key, :utf8)
+    end
+  end
+  
+  defprotocol Encode do
+    def json(term)
+  end
+  
+  defimpl Encode, for: List do
+    def json([]), do: [:start_array, :end_array]
+    def json([{}]), do: [:start_object, :end_object]
+    def json([first|_] = list) when is_tuple(first) do
+      [:start_object] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encode.json(term) end)) ++ [:end_object]
+    end
+    def json(list) do
+      [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encode.json(term) end)) ++ [:end_array]
     end
   end
 end

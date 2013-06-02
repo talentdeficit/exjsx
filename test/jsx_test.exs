@@ -7,8 +7,24 @@ defmodule JSXTest do
     assert(JSX.decode("{}") == [{}])
   end
   
+  test "encode empty object" do
+    assert(JSX.encode([{}]) == "{}")
+  end
+  
   test "decode empty list" do
     assert(JSX.decode("[]") == [])
+  end
+
+  test "encode empty list" do
+    assert(JSX.encode([]) == "[]")
+  end
+  
+  test "encode list of empty lists" do
+    assert(JSX.encode([[], [], []]) == "[[],[],[]]")
+  end
+  
+  test "encode list of empty objects" do
+    assert(JSX.encode([[{}], [{}], [{}]]) == "[{},{},{}]")
   end
   
   test "decode literals" do
