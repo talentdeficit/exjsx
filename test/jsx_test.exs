@@ -31,22 +31,41 @@ defmodule JSXTest do
     assert(JSX.decode("[true, false, null]") == [:true, :false, :nil])
   end
   
+  test "encode literals" do
+    assert(JSX.encode([:true, :false, :nil]) == "[true,false,null]")
+  end
+  
   test "decode numbers" do
     assert(
       JSX.decode("[-18446744073709551617, -1.0, -1, 0, 0.0, 1, 1.0, 18446744073709551617]")
-        == [-18446744073709551617, -1.0, -1, 0, 0, 1, 1.0, 18446744073709551617]
+        == [-18446744073709551617, -1.0, -1, 0, 0.0, 1, 1.0, 18446744073709551617]
+      )
+  end
+  
+  test "encode numbers" do
+    assert(
+      JSX.encode([-18446744073709551617, -1.0, -1, 0, 0.0, 1, 1.0, 18446744073709551617])
+        == "[-18446744073709551617,-1.0,-1,0,0.0,1,1.0,18446744073709551617]"
       )
   end
   
   test "decode strings" do
     assert(JSX.decode("[\"hallo\", \"world\"]") == ["hallo", "world"])
   end
+
+  test "encode strings" do
+    assert(JSX.encode(["hallo", "world"]) == "[\"hallo\",\"world\"]")
+  end
   
-  test "simple object" do
+  test "decode simple object" do
     assert(JSX.decode("{\"key\": true}") == [key: true])
   end
   
-  test "compound object" do
+  test "encode simple object" do
+    assert(JSX.encode([key: true]) == "{\"key\":true}")
+  end
+  
+  test "decode compound object" do
     assert(JSX.decode(
       "{\"a\": [ true, false, null ], \"b\": \"hallo world\", \"c\": {
         \"x\": [ 1,2,3 ], \"y\": {}, \"z\": [[[]]]
@@ -59,6 +78,20 @@ defmodule JSXTest do
           z: [[[]]]
         ]
       ]
+    )
+  end
+  
+  test "encode compound object" do
+    assert(JSX.encode([
+        a: [true,false,nil],
+        b: "hallo world",
+        c: [
+          x: [1,2,3],
+          y: [{}],
+          z: [[[]]]
+        ]
+      ]) == 
+      "{\"a\":[true,false,null],\"b\":\"hallo world\",\"c\":{\"x\":[1,2,3],\"y\":{},\"z\":[[[]]]}}"
     )
   end
 end

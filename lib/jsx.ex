@@ -52,4 +52,23 @@ defmodule JSX do
       [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encode.json(term) end)) ++ [:end_array]
     end
   end
+  
+  defimpl Encode, for: Tuple do
+    def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSX.Encode.json(value)
+  end
+  
+  defimpl Encode, for: Atom do
+    def json(:true), do: [{:literal, :true}]
+    def json(:false), do: [{:literal, :false}]
+    def json(:nil), do: [{:literal, :null}]
+  end
+  
+  defimpl Encode, for: Number do
+    def json(number) when is_integer(number), do: [{:integer, number}]
+    def json(number) when is_float(number), do: [{:float, number}]
+  end
+  
+  defimpl Encode, for: BitString do
+    def json(string), do: [{:string, string}]
+  end
 end
