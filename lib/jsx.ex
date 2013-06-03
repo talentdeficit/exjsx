@@ -58,17 +58,17 @@ defmodule JSX do
   end
   
   defimpl Encode, for: Atom do
-    def json(:true), do: [{:literal, :true}]
-    def json(:false), do: [{:literal, :false}]
-    def json(:nil), do: [{:literal, :null}]
+    def json(:true), do: [:true]
+    def json(:false), do: [:false]
+    def json(:nil), do: [:null]
   end
   
   defimpl Encode, for: Number do
-    def json(number) when is_integer(number), do: [{:integer, number}]
-    def json(number) when is_float(number), do: [{:float, number}]
+    def json(number) when is_integer(number), do: [number]
+    def json(number) when is_float(number), do: [number]
   end
   
   defimpl Encode, for: BitString do
-    def json(string), do: [{:string, string}]
+    def json(string), do: [string]
   end
 end
