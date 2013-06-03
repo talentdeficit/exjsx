@@ -1,11 +1,7 @@
 defmodule JSX do
   def encode(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    try do
-      :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
-    catch
-      :error, _ -> :erlang.error(:badarg)
-    end
+    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
   end
   
   def decode(json, opts // []) do
@@ -25,7 +21,11 @@ defmodule JSX do
   end
   
   def is_json(json, opts // []) do
-    :jsx.is_json(json, opts)
+    try do
+      :jsx.is_json(json, opts)
+    catch
+      :error, :badarg -> :false
+    end
   end
   
   def is_term(term, opts // []) do
@@ -33,7 +33,7 @@ defmodule JSX do
     try do
       :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
     catch
-      :error, _ -> :false
+      :error, :badarg -> :false
     end
   end
    
@@ -64,6 +64,7 @@ defmodule JSX do
   end
   
   defprotocol Encode do
+    @only [List, Tuple, Atom, Number, BitString, Any]
     def json(term)
   end
   
@@ -80,12 +81,14 @@ defmodule JSX do
   
   defimpl Encode, for: Tuple do
     def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSX.Encode.json(value)
+    def json(_), do: raise ArgumentError
   end
   
   defimpl Encode, for: Atom do
     def json(:true), do: [:true]
     def json(:false), do: [:false]
     def json(:nil), do: [:null]
+    def json(_), do: raise ArgumentError
   end
   
   defimpl Encode, for: Number do
@@ -95,5 +98,9 @@ defmodule JSX do
   
   defimpl Encode, for: BitString do
     def json(string), do: [string]
+  end
+  
+  defimpl Encode, for: Any do
+    def json(_), do: raise ArgumentError
   end
 end
