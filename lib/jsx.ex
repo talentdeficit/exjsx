@@ -1,15 +1,40 @@
 defmodule JSX do
-  def json_to_list(json, opts // []) do
-    decode(json, opts)
+  def encode(term, opts // []) do
+    parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
+    try do
+      :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
+    catch
+      :error, _ -> :erlang.error(:badarg)
+    end
   end
   
   def decode(json, opts // []) do
     :jsx.decoder(JSX.Decoder, [], opts).(json)
   end
   
-  def encode(term, opts // []) do
-    parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
+  def format(json, opts // []) do
+    :jsx.format(json, opts)
+  end
+
+  def minify(json) do
+    :jsx.minify(json)
+  end
+  
+  def prettify(json) do
+    :jsx.prettify(json)
+  end
+  
+  def is_json(json, opts // []) do
+    :jsx.is_json(json, opts)
+  end
+  
+  def is_term(term, opts // []) do
+    parser_opts = :jsx_config.extract_config(opts)
+    try do
+      :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
+    catch
+      :error, _ -> :false
+    end
   end
    
   defmodule Decoder do
