@@ -5,11 +5,9 @@ defmodule JSX do
   end
   
   def encode(term, opts // []) do
-    try do
-      {:ok, encode!(term, opts)}
-    rescue
-      ArgumentError -> {:error, :badarg}
-    end
+    {:ok, encode!(term, opts)}
+  rescue
+    ArgumentError -> {:error, :badarg}
   end
   
   def decode!(json, opts // []) do
@@ -17,11 +15,9 @@ defmodule JSX do
   end
 
   def decode(term, opts // []) do
-    try do
-      {:ok, decode!(term, opts)}
-    rescue
-      ArgumentError -> {:error, :badarg}
-    end
+    {:ok, decode!(term, opts)}
+  rescue
+    ArgumentError -> {:error, :badarg}
   end
   
   def format!(json, opts // []) do
@@ -29,11 +25,9 @@ defmodule JSX do
   end
 
   def format(json, opts // []) do
-    try do
-      {:ok, format!(json, opts)}
-    rescue
-      ArgumentError -> {:error, :badarg}
-    end
+    {:ok, format!(json, opts)}
+  rescue
+    ArgumentError -> {:error, :badarg}
   end
 
   def minify!(json) do
@@ -41,11 +35,9 @@ defmodule JSX do
   end
 
   def minify(json) do
-    try do
-      {:ok, minify! json}
-    rescue
-      ArgumentError -> {:error, :badarg}
-    end
+    {:ok, minify! json}
+  rescue
+    ArgumentError -> {:error, :badarg}
   end
   
   def prettify!(json) do
@@ -53,28 +45,22 @@ defmodule JSX do
   end
 
   def prettify(json) do
-    try do
-      {:ok, prettify! json}
-    rescue
-      ArgumentError -> {:error, :badarg}
-    end
+    {:ok, prettify! json}
+  rescue
+    ArgumentError -> {:error, :badarg}
   end
   
   def is_json?(json, opts // []) do
-    try do
-      :jsx.is_json(json, opts)
-    catch
-      _, _ -> false
-    end
+    :jsx.is_json(json, opts)
+  rescue
+      _ -> false
   end
   
   def is_term?(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts)
-    try do
-      :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
-    catch
-      _, _ -> false
-    end
+    :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
+  rescue
+    _ -> false
   end
    
   defmodule Decoder do
