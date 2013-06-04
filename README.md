@@ -1,5 +1,7 @@
 # jsex (v0.1) #
 
+![why not jsex](https://a248.e.akamai.net/camo.github.com/232ca773fb180ba50524ed9c895911e1ac66e956/687474703a2f2f6c2e79696d672e636f6d2f636b2f696d6167652f41323237302f323237303038322f3330305f323237303038322e706e67)
+
 [json][json] for [elixir][elixir]
  
 based on [jsx][jsx]
@@ -38,38 +40,38 @@ $ mix test
 #### to convert a utf8 binary containing a json string into an elixir keyword list ####
 
 ```erlang
-iex(1)> JSX.decode "{\"library\": \"jsx\", \"awesome\": true}"
+iex(1)> JSEX.decode "{\"library\": \"jsx\", \"awesome\": true}"
 [library: "jsx", awesome: true]
-iex(2)> JSX.decode "[\"a\",\"list\",\"of\",\"words\"]"
+iex(2)> JSEX.decode "[\"a\",\"list\",\"of\",\"words\"]"
 ["a","list","of","words"]
 ```
 
 #### to convert an elixir keyword list into a utf8 binary containing a json string ####
 
 ```erlang
-iex(1)> JSX.encode [library: "jsx", awesome: true]
+iex(1)> JSEX.encode [library: "jsx", awesome: true]
 "{\"library\":\"jsx\",\"awesome\":true}"
-iex(2)> JSX.encode ["a","list","of","words"]
+iex(2)> JSEX.encode ["a","list","of","words"]
 "[\"a\",\"list\",\"of\",\"words\"]"
 ```
 
 #### to check if a binary or a term is valid json ####
 
 ```erlang
-iex(1)> JSX.is_json? "[\"this is json\"]"
+iex(1)> JSEX.is_json? "[\"this is json\"]"
 true
-iex(2)> JSX.is_json? [\"this is not\"]
+iex(2)> JSEX.is_json? [\"this is not\"]
 false
-iex(3)> JSX.is_term? ["this is a term"]
+iex(3)> JSEX.is_term? ["this is a term"]
 true
-iex(4)> JSX.is_term? [:this, :is, :not]
+iex(4)> JSEX.is_term? [:this, :is, :not]
 false
 ```
 
 #### to minify some json ####
 
 ```erlang
-iex(1)> JSX.minify "{
+iex(1)> JSEX.minify "{
 ...(1)>   \"a list\": [
 ...(1)>     1,
 ...(1)>     2,
@@ -82,7 +84,7 @@ iex(1)> JSX.minify "{
 #### to prettify some json ####
 
 ```erlang
-iex(1)> JSX.prettify "{\"a list\":[1,2,3]}"
+iex(1)> JSEX.prettify "{\"a list\":[1,2,3]}"
 "{
   \"a list\": [
     1,
@@ -198,21 +200,21 @@ defrecord Character, name: nil, rank: nil
 ```
 
 ```erlang
-iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+iex(1)> JSEX.encode Character.new(name: "Walder Frey", rank: "Lord")
 {:ok,"{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}"}
 ```
 
 but you don't like that encoding. ok. do this:
 
 ```erlang
-defimpl JSX.Encoder, for: Character do
+defimpl JSEX.Encoder, for: Character do
   def json(record) do
     [:start_object, "name", record.rank <> " " <> record.name, :end_object]
 end
 ```
 
 ```erlang
-iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+iex(1)> JSEX.encode Character.new(name: "Walder Frey", rank: "Lord")
 {:ok,"{\"name\":\"Lord Walder Frey\"}"}
 ```
 
@@ -224,7 +226,7 @@ someone should write a macro that does this and make a pull request
 
 ## options ##
 
-jsx functions all take a common set of options. not all flags have meaning 
+jsex functions all take a common set of options. not all flags have meaning 
 in all contexts, but they are always valid options. functions may have 
 additional options beyond these. see 
 [individual function documentation](#exports) for details
@@ -334,14 +336,14 @@ additional options beyond these. see
 `decode` parses a json text (a `BitString`) and produces an elixir term
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard `jsx` [options](#options)
+standard jsex [options](#options)
 
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.decode "[true, false, null]"
+iex(1)> JSEX.decode "[true, false, null]"
 {:ok,[true,false,nil]}
-iex(2)> JSX.decode "invalid json"
+iex(2)> JSEX.decode "invalid json"
 {:error,:badarg}
 ```
 
@@ -351,7 +353,7 @@ iex(2)> JSX.decode "invalid json"
 `encode` converts an elixir term into a json text (a BitString)
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard `jsx` [options](#options) plus the following
+standard jsex [options](#options) plus the following
 
 * `{space, n}`
     inserts `n` spaces after every comma and colon in your  json output.
@@ -365,11 +367,11 @@ standard `jsx` [options](#options) plus the following
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.encode [true, false, nil]
+iex(1)> JSEX.encode [true, false, nil]
 {:ok,"[true,false,null]"}
-iex(2)> JSX.encode [:a, :b, :c]
+iex(2)> JSEX.encode [:a, :b, :c]
 {:error,:badarg}
-iex(3)> JSX.encode! [true, false, nil]
+iex(3)> JSEX.encode! [true, false, nil]
 "[true,false,null]"
 ```
 
@@ -380,7 +382,7 @@ iex(3)> JSX.encode! [true, false, nil]
 `format` parses a json text and produces a formatted json text
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard `jsx` [options](#options) plus the following
+standard jsex [options](#options) plus the following
 
 * `{space, n}`
     inserts `n` spaces after every comma and colon in your  json output.
@@ -394,7 +396,7 @@ standard `jsx` [options](#options) plus the following
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.format("[ true,false,null ]", [space: 2]
+iex(1)> JSEX.format("[ true,false,null ]", [space: 2]
 {:ok,"[true,  false,  null]"}
 ```
 
@@ -406,7 +408,7 @@ iex(1)> JSX.format("[ true,false,null ]", [space: 2]
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.minify("[ true, false, null ]")
+iex(1)> JSEX.minify("[ true, false, null ]")
 {:ok,"[true,false,null]"}
 ```
 
@@ -419,7 +421,7 @@ text equivalent to `format(json, [space: 1, indent: 2])`
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.prettify("[ true, false, null ]")
+iex(1)> JSEX.prettify("[ true, false, null ]")
 {:ok,"[
   true,
   false,
@@ -433,14 +435,14 @@ iex(1)> JSX.prettify("[ true, false, null ]")
 returns true if input is a valid json text, false if not
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard `jsx` [options](#options)
+standard jsex [options](#options)
 
 what exactly constitutes valid json may be [altered](#option)
 
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.is_json?("[ true, false, null ]")
+iex(1)> JSEX.is_json?("[ true, false, null ]")
 true
 ```
 
@@ -451,14 +453,14 @@ returns true if input is an elixir term that can be safely converted to json,
 false if not
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard `jsx` [options](#options)
+standard jsex [options](#options)
 
 what exactly constitutes valid json may be [altered](#option)
 
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.is_term?([ true, false, nil ])
+iex(1)> JSEX.is_term?([ true, false, nil ])
 true
 ```
 

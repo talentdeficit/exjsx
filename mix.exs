@@ -1,4 +1,4 @@
-defmodule JSX.Mixfile do
+defmodule JSEX.Mixfile do
   use Mix.Project
 
   def project do

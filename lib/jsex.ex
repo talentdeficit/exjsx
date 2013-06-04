@@ -1,7 +1,7 @@
-defmodule JSX do
+defmodule JSEX do
   def encode!(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encoder.json(term) ++ [:end_json]))
+    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   end
   
   def encode(term, opts // []) do
@@ -11,7 +11,7 @@ defmodule JSX do
   end
   
   def decode!(json, opts // []) do
-    :jsx.decoder(JSX.Decoder, [], opts).(json)
+    :jsx.decoder(JSEX.Decoder, [], opts).(json)
   end
 
   def decode(term, opts // []) do
@@ -53,12 +53,12 @@ defmodule JSX do
   def is_json?(json, opts // []) do
     :jsx.is_json(json, opts)
   rescue
-      _ -> false
+    _ -> false
   end
   
   def is_term?(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts)
-    :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
+    :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   rescue
     _ -> false
   end
@@ -78,26 +78,26 @@ defmodule JSX do
   end
 end
   
-defprotocol JSX.Encoder do
+defprotocol JSEX.Encoder do
   @only [Record, List, Tuple, Atom, Number, BitString, Any]
   def json(term)
 end
 
-defimpl JSX.Encoder, for: List do
+defimpl JSEX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([first|_] = list) when is_tuple(first) do
-    [:start_object] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encoder.json(term) end)) ++ [:end_object]
+    [:start_object] ++ List.flatten(Enum.map(list, fn(term) -> JSEX.Encoder.json(term) end)) ++ [:end_object]
   end
   def json(list) do
-    [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encoder.json(term) end)) ++ [:end_array]
+    [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSEX.Encoder.json(term) end)) ++ [:end_array]
   end
 end
 
-defimpl JSX.Encoder, for: Tuple do
+defimpl JSEX.Encoder, for: Tuple do
   def json(record) when is_record(record) do
     if function_exported?(elem(record, 0), :__record__, 1) do
-      JSX.Encoder.json Enum.map(
+      JSEX.Encoder.json Enum.map(
         record.__record__(:fields),
         fn({key, _}) ->
           index = record.__index__(key)
@@ -108,23 +108,23 @@ defimpl JSX.Encoder, for: Tuple do
     else
       # record is not really a record
       {key, value} = record
-      [{:key, key}] ++ JSX.Encoder.json(value)
+      [{:key, key}] ++ JSEX.Encoder.json(value)
     end
   end
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSX.Encoder, for: Atom do
+defimpl JSEX.Encoder, for: Atom do
   def json(true), do: [true]
   def json(false), do: [false]
   def json(nil), do: [:null]
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSX.Encoder, for: [Number, BitString] do
+defimpl JSEX.Encoder, for: [Number, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSX.Encoder, for: Any do
+defimpl JSEX.Encoder, for: Any do
   def json(_), do: raise ArgumentError
 end
