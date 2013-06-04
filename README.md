@@ -1,9 +1,8 @@
 # jsex (v0.1) #
 
-an elixir application for consuming, producing and manipulating [json][json]. 
+[json][json] for [elixir][elixir]
+ 
 based on [jsx][jsx]
-
-jsex is built via mix and continuous integration testing provided courtesy [travis][travis]
 
 jsex is released under the terms of the [MIT][MIT] license
 
@@ -470,10 +469,14 @@ unwrapped results or throw an `ArgumentError` when presented with bad input
 
 ## acknowledgements ##
 
-jsex wouldn't be what it is without the contributions of [paul davis](https://github.com/davisp), [lloyd hilaiel](https://github.com/lloyd), [john engelhart](https://github.com/johnezang), [bob ippolito](https://github.com/etrepum), [fernando benavides](https://github.com/elbrujohalcon), [alex kropivny](https://github.com/amtal), [steve strong](https://github.com/srstrong), [michael truog](https://github.com/okeuday), [dmitry kolesnikov](https://github.com/fogfish), [emptytea](https://github.com/emptytea), [yurii rashkovskii](https://github.com/yrashk), [edgurgel](https://github.com/edgurgel) and [devin torres](https://github.com/devinus)
+jsex wouldn't be what it is without the guidance and code review of 
+[yurii rashkovskii](https://github.com/yrashk), [edgurgel](https://github.com/edgurgel) and [devin torres](https://github.com/devinus)
+
+jsex would have a way lamer name if not for [edgurgel](https://github.com/edgurgel)
 
 [json]: http://json.org
-[jsx]: http://github.com/talentdeficit/jsx
+[elixir]: https://github.com/elixir-lang/elixir
+[jsx]: https://github.com/talentdeficit/jsx
 [MIT]: http://www.opensource.org/licenses/mit-license.html
 [rfc4627]: http://tools.ietf.org/html/rfc4627
 [travis]: https://travis-ci.org/
