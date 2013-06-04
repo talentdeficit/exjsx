@@ -64,7 +64,7 @@ defmodule JSX do
     try do
       :jsx.is_json(json, opts)
     catch
-      _, _ -> :false
+      _, _ -> false
     end
   end
   
@@ -73,7 +73,7 @@ defmodule JSX do
     try do
       :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
     catch
-      _, _ -> :false
+      _, _ -> false
     end
   end
    
@@ -87,11 +87,11 @@ defmodule JSX do
     end
 
     def handle_event({:literal, :null}, {[{:key, key}, last|terms], config}) do
-      {[[{key, :nil}] ++ last] ++ terms, config}
+      {[[{key, nil}] ++ last] ++ terms, config}
     end
   
     def handle_event({:literal, :null}, {[last|terms], config}) do
-      {[[:nil] ++ last] ++ terms, config}
+      {[[nil] ++ last] ++ terms, config}
     end
   
     def handle_event(event, config) do
@@ -138,9 +138,9 @@ defimpl JSXEncoder, for: Tuple do
 end
 
 defimpl JSXEncoder, for: Atom do
-  def json(:true), do: [:true]
-  def json(:false), do: [:false]
-  def json(:nil), do: [:null]
+  def json(true), do: [true]
+  def json(false), do: [false]
+  def json(nil), do: [:null]
   def json(_), do: raise ArgumentError
 end
 

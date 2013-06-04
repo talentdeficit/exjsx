@@ -28,11 +28,11 @@ defmodule JSXTest do
   end
   
   test "decode literals" do
-    assert(JSX.decode!("[true, false, null]") == [:true, :false, :nil])
+    assert(JSX.decode!("[true, false, null]") == [true, false, nil])
   end
   
   test "encode literals" do
-    assert(JSX.encode!([:true, :false, :nil]) == "[true,false,null]")
+    assert(JSX.encode!([true, false, nil]) == "[true,false,null]")
   end
   
   test "decode numbers" do

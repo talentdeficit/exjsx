@@ -118,7 +118,7 @@ here is a table of how various json values map to erlang:
 --------------------------------|--------------------------------
 `number`                        | `Number`
 `string`                        | `BitString`
-`true`, `false` and `null`      | `:true`, `:false` and `:nil`
+`true`, `false` and `null`      | `true`, `false` and `nil`
 `array`                         | `List`
 `object`                        | `[{}]`, `Keyword` and `Record`
 
@@ -174,7 +174,7 @@ here is a table of how various json values map to erlang:
 *   true, false and null
 
     the json primitives `true`, `false` and `null` are represented by the 
-    elixir atoms `:true`, `:false` and `:nil`
+    elixir atoms `true`, `false` and `nil`
 
 *   arrays
 
@@ -370,11 +370,11 @@ standard `jsx` [options](#options) plus the following
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.encode [:true, :false, :nil]
+iex(1)> JSX.encode [true, false, nil]
 {:ok,"[true,false,null]"}
 iex(2)> JSX.encode [:a, :b, :c]
 {:error,:badarg}
-iex(3)> JSX.encode! [:true, :false, :nil]
+iex(3)> JSX.encode! [true, false, nil]
 "[true,false,null]"
 ```
 
@@ -463,7 +463,7 @@ what exactly constitutes valid json may be [altered](#option)
 ##### examples #####
 
 ```erlang
-iex(1)> JSX.is_term?([ :true, :false, :nil ])
+iex(1)> JSX.is_term?([ true, false, nil ])
 true
 ```
 
