@@ -2,7 +2,7 @@ defmodule JSX.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :exjsx,
+    [ app: :jsex,
       version: "0.0.1",
       deps: deps ]
   end

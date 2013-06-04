@@ -1,11 +1,11 @@
-# exjsx (v0.1) #
+# jsex (v0.1) #
 
 an elixir application for consuming, producing and manipulating [json][json]. 
 based on [jsx][jsx]
 
-exjsx is built via mix and continuous integration testing provided courtesy [travis][travis]
+jsex is built via mix and continuous integration testing provided courtesy [travis][travis]
 
-exjsx is released under the terms of the [MIT][MIT] license
+jsex is released under the terms of the [MIT][MIT] license
 
 copyright 2013 alisdair sullivan
 
@@ -97,20 +97,20 @@ iex(1)> JSX.prettify "{\"a list\":[1,2,3]}"
 ## description ##
 
 
-exjsx is an elixir application for consuming, producing and manipulating 
+jsex is an elixir application for consuming, producing and manipulating 
 [json][json]
 
 json has a [spec][rfc4627] but common usage differs subtly. it's common 
-usage exjsx attempts to address, with guidance from the spec
+usage jsex attempts to address, with guidance from the spec
 
-all json produced and consumed by exjsx should be `utf8` encoded text or a 
+all json produced and consumed by jsex should be `utf8` encoded text or a 
 reasonable approximation thereof. ascii works too, but anything beyond that 
 i'm not going to make any promises. **especially** not latin1
 
 the [spec][rfc4627] thinks json values must be wrapped in a json array or 
-object but everyone else disagrees so exjsx allows naked json values by default.
+object but everyone else disagrees so jsex allows naked json values by default.
 
-here is a table of how various json values map to erlang:
+here is a table of how various json values map to elixir:
 
 ### json &lt;-> elixir mapping ###
 
@@ -120,12 +120,12 @@ here is a table of how various json values map to erlang:
 `string`                        | `BitString`
 `true`, `false` and `null`      | `true`, `false` and `nil`
 `array`                         | `List`
-`object`                        | `[{}]`, `Keyword` and `Record`
+`object`                        | `[{}]`, `Dict` and `Record`
 
 *   numbers
 
     javascript and thus json represent all numeric values with floats. as 
-    this is woefully insufficient for many uses, **exjsx**, just like elixir, 
+    this is woefully insufficient for many uses, **jsex**, just like elixir, 
     supports bigints. whenever possible, this library will interpret json 
     numbers that look like integers as integers. other numbers will be converted 
     to elixir's floating point type, which is nearly but not quite iee754. 
@@ -183,13 +183,9 @@ here is a table of how various json values map to erlang:
 
 *   objects
 
-    json objects are represented by elixir keyword lists. the empty object has
-    the special representation `[{}]` to differentiate it from the empty list. 
-    all keys must be atoms with valid utf8 representations (which will be escaped 
-    and converted to binaries for presentation to handlers). values should be 
-    valid json values. records (with 2 or more fields) are serialized to objects
-    automagically but there is currently no way to perform the reverse. stay tuned
-    tho
+    json objects are represented by elixir dicts. keys are atoms or bitstrings and
+    values are valid json values. records are serialized to objects automagically
+    but there is currently no way to perform the reverse. stay tuned tho
 
 
 ## frequently made accusations ##
@@ -474,7 +470,7 @@ unwrapped results or throw an `ArgumentError` when presented with bad input
 
 ## acknowledgements ##
 
-exjsx wouldn't be what it is without the contributions of [paul davis](https://github.com/davisp), [lloyd hilaiel](https://github.com/lloyd), [john engelhart](https://github.com/johnezang), [bob ippolito](https://github.com/etrepum), [fernando benavides](https://github.com/elbrujohalcon), [alex kropivny](https://github.com/amtal), [steve strong](https://github.com/srstrong), [michael truog](https://github.com/okeuday), [dmitry kolesnikov](https://github.com/fogfish), [emptytea](https://github.com/emptytea), [yurii rashkovskii](https://github.com/yrashk) and [edgurgel](https://github.com/edgurgel)
+jsex wouldn't be what it is without the contributions of [paul davis](https://github.com/davisp), [lloyd hilaiel](https://github.com/lloyd), [john engelhart](https://github.com/johnezang), [bob ippolito](https://github.com/etrepum), [fernando benavides](https://github.com/elbrujohalcon), [alex kropivny](https://github.com/amtal), [steve strong](https://github.com/srstrong), [michael truog](https://github.com/okeuday), [dmitry kolesnikov](https://github.com/fogfish), [emptytea](https://github.com/emptytea), [yurii rashkovskii](https://github.com/yrashk), [edgurgel](https://github.com/edgurgel) and [devin torres](https://github.com/devinus)
 
 [json]: http://json.org
 [jsx]: http://github.com/talentdeficit/jsx
