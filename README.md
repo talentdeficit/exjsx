@@ -470,9 +470,9 @@ unwrapped results or throw an `ArgumentError` when presented with bad input
 ## acknowledgements ##
 
 jsex wouldn't be what it is without the guidance and code review of 
-[yurii rashkovskii](https://github.com/yrashk), [edgurgel](https://github.com/edgurgel) and [devin torres](https://github.com/devinus)
+[yurii rashkovskii](https://github.com/yrashk), [eduardo gurgel](https://github.com/edgurgel) and [devin torres](https://github.com/devinus)
 
-jsex would have a way lamer name if not for [edgurgel](https://github.com/edgurgel)
+jsex would have a way lamer name if not for [eduardo gurgel](https://github.com/edgurgel)
 
 [json]: http://json.org
 [elixir]: https://github.com/elixir-lang/elixir
