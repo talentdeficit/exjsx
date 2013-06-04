@@ -59,7 +59,7 @@ iex(2)> JSX.encode ["a","list","of","words"]
 ```erlang
 iex(1)> JSX.is_json? "[\"this is json\"]"
 true
-iex(2)> JSX.is_json? "[\"this is not\"]"
+iex(2)> JSX.is_json? [\"this is not\"]
 false
 iex(3)> JSX.is_term? ["this is a term"]
 true
