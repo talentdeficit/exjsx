@@ -121,7 +121,14 @@ defimpl JSXEncoder, for: List do
 end
 
 defimpl JSXEncoder, for: Tuple do
-  def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSXEncoder.json(value)
+  def json({key, value} = mayberecord) when is_atom(key) do
+    try do
+      JSXEncoder.json(mayberecord.__record__(:fields))
+    rescue
+      UndefinedFunctionError -> [{:key, key}] ++ JSXEncoder.json(value)
+    end
+  end
+  def json(record) when is_record(record), do: JSXEncoder.json(record.__record__(:fields))
   def json(_), do: raise ArgumentError
 end
 
@@ -133,8 +140,7 @@ defimpl JSXEncoder, for: Atom do
 end
 
 defimpl JSXEncoder, for: Number do
-  def json(number) when is_integer(number), do: [number]
-  def json(number) when is_float(number), do: [number]
+  def json(number), do: [number]
 end
 
 defimpl JSXEncoder, for: BitString do
