@@ -14,6 +14,7 @@ copyright 2013 alisdair sullivan
 * [quickstart](#quickstart)
 * [description](#description)
   - [json <-> erlang mapping](#json---erlang-mapping)
+* [fma](#frequently-made-accusations)
 * [options](#options)
 * [exports](#exports)
   - [`decode`](#decode)
@@ -119,7 +120,7 @@ here is a table of how various json values map to erlang:
 `string`                        | `BitString`
 `true`, `false` and `null`      | `:true`, `:false` and `:nil`
 `array`                         | `List`
-`object`                        | `[{}]` and `Keyword`
+`object`                        | `[{}]`, `Keyword` and `Record`
 
 *   numbers
 
@@ -186,7 +187,42 @@ here is a table of how various json values map to erlang:
     the special representation `[{}]` to differentiate it from the empty list. 
     all keys must be atoms with valid utf8 representations (which will be escaped 
     and converted to binaries for presentation to handlers). values should be 
-    valid json values
+    valid json values. records (with 2 or more fields) are serialized to objects
+    automagically but there is currently no way to perform the reverse. stay tuned
+    tho
+
+
+## frequently made accusations ##
+
+#### your lib sucks and encodes my records wrong ####
+
+so you have this record:
+
+```erlang
+defrecord Character, name: nil, rank: nil
+```
+
+```erlang
+iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+{:ok,"{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}"}
+```
+
+but you don't like that encoding. ok. do this:
+
+```erlang
+defimpl JSXEncoder, for: Character do
+  def json(record) do
+    [:start_object, "name", record.rank <> " " <> record.name, :end_object]
+end
+```
+
+```erlang
+iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+{:ok,"{\"name\":\"Lord Walder Frey\"}"}
+```
+
+someone should write a macro that does this and make a pull request
+
 
 ## options ##
 
