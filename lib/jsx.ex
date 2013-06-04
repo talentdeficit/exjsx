@@ -1,7 +1,7 @@
 defmodule JSX do
   def encode!(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
+    :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSX.Encoder.json(term) ++ [:end_json]))
   end
   
   def encode(term, opts // []) do
@@ -104,28 +104,28 @@ defmodule JSX do
   end
 end
   
-defprotocol JSXEncoder do
+defprotocol JSX.Encoder do
   @only [Record, List, Tuple, Atom, Number, BitString, Any]
   def json(term)
 end
 
-defimpl JSXEncoder, for: List do
+defimpl JSX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([first|_] = list) when is_tuple(first) do
-    [:start_object] ++ List.flatten(Enum.map(list, fn(term) -> JSXEncoder.json(term) end)) ++ [:end_object]
+    [:start_object] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encoder.json(term) end)) ++ [:end_object]
   end
   def json(list) do
-    [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSXEncoder.json(term) end)) ++ [:end_array]
+    [:start_array] ++ List.flatten(Enum.map(list, fn(term) -> JSX.Encoder.json(term) end)) ++ [:end_array]
   end
 end
 
-defimpl JSXEncoder, for: Tuple do
+defimpl JSX.Encoder, for: Tuple do
   # just assume any two tuples are part of a proplist. one field records are kind of
   # unencodable but those can be overriden while fixing proplists is harder 
-  def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSXEncoder.json(value)
+  def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSX.Encoder.json(value)
   def json(record) when is_record(record) do
-    JSXEncoder.json Enum.map(
+    JSX.Encoder.json Enum.map(
       record.__record__(:fields),
       fn({key, _}) ->
         index = record.__index__(key)
@@ -137,21 +137,21 @@ defimpl JSXEncoder, for: Tuple do
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSXEncoder, for: Atom do
+defimpl JSX.Encoder, for: Atom do
   def json(true), do: [true]
   def json(false), do: [false]
   def json(nil), do: [:null]
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSXEncoder, for: Number do
+defimpl JSX.Encoder, for: Number do
   def json(number), do: [number]
 end
 
-defimpl JSXEncoder, for: BitString do
+defimpl JSX.Encoder, for: BitString do
   def json(string), do: [string]
 end
 
-defimpl JSXEncoder, for: Any do
+defimpl JSX.Encoder, for: Any do
   def json(_), do: raise ArgumentError
 end

@@ -210,7 +210,7 @@ iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
 but you don't like that encoding. ok. do this:
 
 ```erlang
-defimpl JSXEncoder, for: Character do
+defimpl JSX.Encoder, for: Character do
   def json(record) do
     [:start_object, "name", record.rank <> " " <> record.name, :end_object]
 end

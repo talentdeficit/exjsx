@@ -104,7 +104,7 @@ defmodule JSXTest do
   
   defrecord BasicRecord, name: nil, rank: nil
   
-  defimpl JSXEncoder, for: BasicRecord do
+  defimpl JSX.Encoder, for: BasicRecord do
     def json(record) do
       [:start_object, "name", record.rank <> " " <> record.name, :end_object]
     end
