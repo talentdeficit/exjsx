@@ -124,7 +124,16 @@ defimpl JSXEncoder, for: Tuple do
   # just assume any two tuples are part of a proplist. one field records are kind of
   # unencodable but those can be overriden while fixing proplists is harder 
   def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSXEncoder.json(value)
-  def json(record) when is_record(record), do: JSXEncoder.json(record.__record__(:fields))
+  def json(record) when is_record(record) do
+    JSXEncoder.json Enum.map(
+      record.__record__(:fields),
+      fn({key, _}) ->
+        index = record.__index__(key)
+        value = elem(record, index)
+        {key, value}
+      end
+    )
+  end
   def json(_), do: raise ArgumentError
 end
 

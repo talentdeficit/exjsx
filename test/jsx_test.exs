@@ -95,9 +95,10 @@ defmodule JSXTest do
     )
   end
   
-  defrecord SimpleRecord, name: "Walder Frey", rank: "Lord"
+  defrecord SimpleRecord, name: nil, rank: nil
   
   test "encode a simple record" do
-    assert(JSX.encode!(SimpleRecord.new) == "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}")
+    assert(JSX.encode!(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
+      == "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}")
   end
 end
