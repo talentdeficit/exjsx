@@ -101,4 +101,18 @@ defmodule JSXTest do
     assert(JSX.encode!(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
       == "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}")
   end
+  
+  defrecord BasicRecord, name: nil, rank: nil
+  
+  defimpl JSXEncoder, for: BasicRecord do
+    def json(record) do
+      [:start_object, "name", record.rank <> " " <> record.name, :end_object]
+    end
+  end
+  
+  test "encode a basic record with a protocol defined" do
+    assert(JSX.encode!(BasicRecord.new(name: "Walder Frey", rank: "Lord"))
+      == "{\"name\":\"Lord Walder Frey\"}")
+  end
+  
 end
