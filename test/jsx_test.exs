@@ -58,7 +58,7 @@ defmodule JSXTest do
   end
   
   test "decode simple object" do
-    assert(JSX.decode!("{\"key\": true}") == [key: true])
+    assert(JSX.decode!("{\"key\": true}") == [{"key", true}])
   end
   
   test "encode simple object" do
@@ -70,13 +70,13 @@ defmodule JSXTest do
       "{\"a\": [ true, false, null ], \"b\": \"hallo world\", \"c\": {
         \"x\": [ 1,2,3 ], \"y\": {}, \"z\": [[[]]]
       }}") == [
-        a: [true,false,nil],
-        b: "hallo world",
-        c: [
-          x: [1,2,3],
-          y: [{}],
-          z: [[[]]]
-        ]
+        {"a", [true,false,nil]},
+        {"b", "hallo world"},
+        {"c", [
+          {"x", [1,2,3]},
+          {"y", [{}]},
+          {"z", [[[]]]}
+        ]}
       ]
     )
   end

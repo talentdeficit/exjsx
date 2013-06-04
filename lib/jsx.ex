@@ -81,14 +81,6 @@ defmodule JSX do
     def init(_) do
       :jsx_to_term.init([])
     end
-
-    def handle_event({:key, key}, {terms, config}) do
-      {[{:key, format_key(key)}] ++ terms, config}
-    end
-
-    def handle_event({:literal, :null}, {[{:key, key}, last|terms], config}) do
-      {[[{key, nil}] ++ last] ++ terms, config}
-    end
   
     def handle_event({:literal, :null}, {[last|terms], config}) do
       {[[nil] ++ last] ++ terms, config}
@@ -96,10 +88,6 @@ defmodule JSX do
   
     def handle_event(event, config) do
       :jsx_to_term.handle_event(event, config)
-    end
-    
-    defp format_key(key) do
-      :erlang.binary_to_atom(key, :utf8)
     end
   end
 end
@@ -121,18 +109,21 @@ defimpl JSX.Encoder, for: List do
 end
 
 defimpl JSX.Encoder, for: Tuple do
-  # just assume any two tuples are part of a proplist. one field records are kind of
-  # unencodable but those can be overriden while fixing proplists is harder 
-  def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSX.Encoder.json(value)
   def json(record) when is_record(record) do
-    JSX.Encoder.json Enum.map(
-      record.__record__(:fields),
-      fn({key, _}) ->
-        index = record.__index__(key)
-        value = elem(record, index)
-        {key, value}
-      end
-    )
+    if function_exported?(elem(record, 0), :__record__, 1) do
+      JSX.Encoder.json Enum.map(
+        record.__record__(:fields),
+        fn({key, _}) ->
+          index = record.__index__(key)
+          value = elem(record, index)
+          {key, value}
+        end
+      )
+    else
+      # record is not really a record
+      {key, value} = record
+      [{:key, key}] ++ JSX.Encoder.json(value)
+    end
   end
   def json(_), do: raise ArgumentError
 end
