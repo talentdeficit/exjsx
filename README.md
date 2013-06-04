@@ -13,17 +13,17 @@ copyright 2013 alisdair sullivan
 
 * [quickstart](#quickstart)
 * [description](#description)
-  - [json <-> erlang mapping](#json---erlang-mapping)
+  - [json <-> elixir mapping](#json---elixir-mapping)
 * [fma](#frequently-made-accusations)
 * [options](#options)
 * [exports](#exports)
-  - [`decode`](#decode)
-  - [`encode`](#encode)
-  - [`format`](#format)
-  - [`minify`](#minify)
-  - [`prettify`](#prettify)
-  - [`is_json`](#is_json)
-  - [`is_term`](#is_term)
+  - [`decode`](#decodejson-opts)
+  - [`encode`](#encodeterm-opts)
+  - [`format`](#formatjson-opts)
+  - [`minify`](#minifyjson)
+  - [`prettify`](#prettifyjson)
+  - [`is_json`](#is_jsonjson-opts)
+  - [`is_term`](#is_termterm-opts)
 * [acknowledgements](#acknowledgements)
 
 
@@ -421,7 +421,7 @@ standard `jsx` [options](#options)
 what exactly constitutes valid json may be [altered](#option)
 
 
-#### `is_term?(json, opts)` ####
+#### `is_term?(term, opts)` ####
 
 returns true if input is an elixir term that can be safely converted to json,
 false if not
