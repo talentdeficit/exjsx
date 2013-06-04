@@ -403,15 +403,34 @@ iex(1)> JSX.format("[ true,false,null ]", [space: 2]
 {:ok,"[true,  false,  null]"}
 ```
 
+
 #### `minify(json)` ####
 
 `minify` parses a json text and produces a new json text stripped of whitespace
+
+##### examples #####
+
+```erlang
+iex(1)> JSX.minify("[ true, false, null ]")
+{:ok,"[true,false,null]"}
+```
 
 
 #### `prettify(json)` ####
 
 `prettify` parses a json text and produces a new json 
 text equivalent to `format(json, [space: 1, indent: 2])`
+
+##### examples #####
+
+```erlang
+iex(1)> JSX.prettify("[ true, false, null ]")
+{:ok,"[
+  true,
+  false,
+  null
+]"}
+```
 
 
 #### `is_json?(json, opts)` ####
@@ -423,6 +442,13 @@ standard `jsx` [options](#options)
 
 what exactly constitutes valid json may be [altered](#option)
 
+##### examples #####
+
+```erlang
+iex(1)> JSX.is_json?("[ true, false, null ]")
+true
+```
+
 
 #### `is_term?(term, opts)` ####
 
@@ -433,6 +459,17 @@ false if not
 standard `jsx` [options](#options)
 
 what exactly constitutes valid json may be [altered](#option)
+
+##### examples #####
+
+```erlang
+iex(1)> JSX.is_term?([ :true, :false, :nil ])
+true
+```
+
+
+`decode!`, `encode!`, `format!`, `minify!` and `prettify!` are all variants that return
+unwrapped results or throw an `ArgumentError` when presented with bad input
 
 
 ## acknowledgements ##
