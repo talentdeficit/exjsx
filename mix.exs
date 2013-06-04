@@ -13,6 +13,6 @@ defmodule JSX.Mixfile do
   end
 
   defp deps do
-    [{ :jsx, "1.4.1", git: "https://github.com/talentdeficit/jsx.git" }]
+    [{:jsx, github: "talentdeficit/jsx", tag: "v1.4.2"}]
   end
 end
