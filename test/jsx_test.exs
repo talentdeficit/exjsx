@@ -94,4 +94,10 @@ defmodule JSXTest do
       "{\"a\":[true,false,null],\"b\":\"hallo world\",\"c\":{\"x\":[1,2,3],\"y\":{},\"z\":[[[]]]}}"
     )
   end
+  
+  defrecord SimpleRecord, name: "Walder Frey", rank: "Lord"
+  
+  test "encode a simple record" do
+    assert(JSX.encode!(SimpleRecord.new) == "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}")
+  end
 end

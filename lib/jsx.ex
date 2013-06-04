@@ -121,13 +121,9 @@ defimpl JSXEncoder, for: List do
 end
 
 defimpl JSXEncoder, for: Tuple do
-  def json({key, value} = mayberecord) when is_atom(key) do
-    try do
-      JSXEncoder.json(mayberecord.__record__(:fields))
-    rescue
-      UndefinedFunctionError -> [{:key, key}] ++ JSXEncoder.json(value)
-    end
-  end
+  # just assume any two tuples are part of a proplist. one field records are kind of
+  # unencodable but those can be overriden while fixing proplists is harder 
+  def json({key, value}) when is_atom(key), do: [{:key, key}] ++ JSXEncoder.json(value)
   def json(record) when is_record(record), do: JSXEncoder.json(record.__record__(:fields))
   def json(_), do: raise ArgumentError
 end
