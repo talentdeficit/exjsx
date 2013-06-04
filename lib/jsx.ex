@@ -105,7 +105,7 @@ defmodule JSX do
 end
   
 defprotocol JSXEncoder do
-  @only [List, Tuple, Atom, Number, BitString, Any]
+  @only [Record, List, Tuple, Atom, Number, BitString, Any]
   def json(term)
 end
 
