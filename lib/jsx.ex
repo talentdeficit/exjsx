@@ -1,39 +1,79 @@
 defmodule JSX do
-  def encode(term, opts // []) do
+  def encode!(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
     :jsx.parser(:jsx_to_json, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
   end
   
-  def decode(json, opts // []) do
-    :jsx.decoder(JSX.Decoder, [], opts).(json)
-  end
-  
-  def format(json, opts // []) do
-    :jsx.format(json, opts)
-  end
-
-  def minify(json) do
-    :jsx.minify(json)
-  end
-  
-  def prettify(json) do
-    :jsx.prettify(json)
-  end
-  
-  def is_json(json, opts // []) do
+  def encode(term, opts // []) do
     try do
-      :jsx.is_json(json, opts)
-    catch
-      :error, :badarg -> :false
+      {:ok, encode!(term, opts)}
+    rescue
+      ArgumentError -> {:error, :badarg}
     end
   end
   
-  def is_term(term, opts // []) do
+  def decode!(json, opts // []) do
+    :jsx.decoder(JSX.Decoder, [], opts).(json)
+  end
+
+  def decode(term, opts // []) do
+    try do
+      {:ok, decode!(term, opts)}
+    rescue
+      ArgumentError -> {:error, :badarg}
+    end
+  end
+  
+  def format!(json, opts // []) do
+    :jsx.format(json, opts)
+  end
+
+  def format(json, opts // []) do
+    try do
+      {:ok, format!(json, opts)}
+    rescue
+      ArgumentError -> {:error, :badarg}
+    end
+  end
+
+  def minify!(json) do
+    :jsx.minify(json)
+  end
+
+  def minify(json) do
+    try do
+      {:ok, minify! json}
+    rescue
+      ArgumentError -> {:error, :badarg}
+    end
+  end
+  
+  def prettify!(json) do
+    :jsx.prettify(json)
+  end
+
+  def prettify(json) do
+    try do
+      {:ok, prettify! json}
+    rescue
+      ArgumentError -> {:error, :badarg}
+    end
+  end
+  
+  def is_json?(json, opts // []) do
+    try do
+      :jsx.is_json(json, opts)
+    catch
+      _, _ -> :false
+    end
+  end
+  
+  def is_term?(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts)
     try do
-      :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSX.Encode.json(term) ++ [:end_json]))
+      :jsx.parser(:jsx_verify, opts, parser_opts).(List.flatten(JSXEncoder.json(term) ++ [:end_json]))
     catch
-      :error, :badarg -> :false
+      _, _ -> :false
     end
   end
    
