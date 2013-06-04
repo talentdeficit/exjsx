@@ -221,6 +221,9 @@ iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
 {:ok,"{\"name\":\"Lord Walder Frey\"}"}
 ```
 
+along with the [jsx][jsx] internal format you can also generate you own json
+and pass it to the encoder with `[{:raw, "{\"name\": \"Lord Walder Frey\"}"}]`
+
 someone should write a macro that does this and make a pull request
 
 
