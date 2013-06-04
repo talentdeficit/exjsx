@@ -121,12 +121,8 @@ defimpl JSX.Encoder, for: Atom do
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSX.Encoder, for: Number do
-  def json(number), do: [number]
-end
-
-defimpl JSX.Encoder, for: BitString do
-  def json(string), do: [string]
+defimpl JSX.Encoder, for: [Number, BitString] do
+  def json(value), do: [value]
 end
 
 defimpl JSX.Encoder, for: Any do
