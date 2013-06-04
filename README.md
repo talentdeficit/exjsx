@@ -37,52 +37,52 @@ $ mix test
 
 #### to convert a utf8 binary containing a json string into an elixir keyword list ####
 
-```erlang
-iex(1)> JSX.decode "{\"library\": \"jsx\", \"awesome\": true}"
+```iex
+iex> JSX.decode "{\"library\": \"jsx\", \"awesome\": true}"
 [library: "jsx", awesome: true]
-iex(2)> JSX.decode "[\"a\",\"list\",\"of\",\"words\"]"
+iex> JSX.decode "[\"a\",\"list\",\"of\",\"words\"]"
 ["a","list","of","words"]
 ```
 
 #### to convert an elixir keyword list into a utf8 binary containing a json string ####
 
-```erlang
-iex(1)> JSX.encode [library: "jsx", awesome: true]
+```iex
+iex> JSX.encode [library: "jsx", awesome: true]
 "{\"library\":\"jsx\",\"awesome\":true}"
-iex(2)> JSX.encode ["a","list","of","words"]
+iex> JSX.encode ["a","list","of","words"]
 "[\"a\",\"list\",\"of\",\"words\"]"
 ```
 
 #### to check if a binary or a term is valid json ####
 
-```erlang
-iex(1)> JSX.is_json? "[\"this is json\"]"
+```iex
+iex> JSX.is_json? "[\"this is json\"]"
 true
-iex(2)> JSX.is_json? [\"this is not\"]
+iex> JSX.is_json? [\"this is not\"]
 false
-iex(3)> JSX.is_term? ["this is a term"]
+iex> JSX.is_term? ["this is a term"]
 true
-iex(4)> JSX.is_term? [:this, :is, :not]
+iex> JSX.is_term? [:this, :is, :not]
 false
 ```
 
 #### to minify some json ####
 
-```erlang
-iex(1)> JSX.minify "{
-...(1)>   \"a list\": [
-...(1)>     1,
-...(1)>     2,
-...(1)>     3
-...(1)>   ]
-...(1)> }"
+```iex
+iex> JSX.minify "{
+...>   \"a list\": [
+...>     1,
+...>     2,
+...>     3
+...>   ]
+...> }"
 "{\"a list\":[1,2,3]}"
 ```
 
 #### to prettify some json ####
 
-```erlang
-iex(1)> JSX.prettify "{\"a list\":[1,2,3]}"
+```iex
+iex> JSX.prettify "{\"a list\":[1,2,3]}"
 "{
   \"a list\": [
     1,
@@ -193,26 +193,26 @@ here is a table of how various json values map to elixir:
 
 so you have this record:
 
-```erlang
+```elixir
 defrecord Character, name: nil, rank: nil
 ```
 
-```erlang
-iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+```iex
+iex> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
 {:ok,"{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}"}
 ```
 
 but you don't like that encoding. ok. do this:
 
-```erlang
+```elixir
 defimpl JSX.Encoder, for: Character do
   def json(record) do
     [:start_object, "name", record.rank <> " " <> record.name, :end_object]
 end
 ```
 
-```erlang
-iex(1)> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
+```iex
+iex> JSX.encode Character.new(name: "Walder Frey", rank: "Lord")
 {:ok,"{\"name\":\"Lord Walder Frey\"}"}
 ```
 
@@ -338,10 +338,10 @@ standard `jsx` [options](#options)
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.decode "[true, false, null]"
+```iex
+iex> JSX.decode "[true, false, null]"
 {:ok,[true,false,nil]}
-iex(2)> JSX.decode "invalid json"
+iex> JSX.decode "invalid json"
 {:error,:badarg}
 ```
 
@@ -364,12 +364,12 @@ standard `jsx` [options](#options) plus the following
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.encode [true, false, nil]
+```iex
+iex> JSX.encode [true, false, nil]
 {:ok,"[true,false,null]"}
-iex(2)> JSX.encode [:a, :b, :c]
+iex> JSX.encode [:a, :b, :c]
 {:error,:badarg}
-iex(3)> JSX.encode! [true, false, nil]
+iex> JSX.encode! [true, false, nil]
 "[true,false,null]"
 ```
 
@@ -393,8 +393,8 @@ standard `jsx` [options](#options) plus the following
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.format("[ true,false,null ]", [space: 2]
+```iex
+iex> JSX.format("[ true,false,null ]", [space: 2]
 {:ok,"[true,  false,  null]"}
 ```
 
@@ -405,8 +405,8 @@ iex(1)> JSX.format("[ true,false,null ]", [space: 2]
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.minify("[ true, false, null ]")
+```iex
+iex> JSX.minify("[ true, false, null ]")
 {:ok,"[true,false,null]"}
 ```
 
@@ -418,8 +418,8 @@ text equivalent to `format(json, [space: 1, indent: 2])`
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.prettify("[ true, false, null ]")
+```iex
+iex> JSX.prettify("[ true, false, null ]")
 {:ok,"[
   true,
   false,
@@ -439,8 +439,8 @@ what exactly constitutes valid json may be [altered](#option)
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.is_json?("[ true, false, null ]")
+```iex
+iex> JSX.is_json?("[ true, false, null ]")
 true
 ```
 
@@ -457,8 +457,8 @@ what exactly constitutes valid json may be [altered](#option)
 
 ##### examples #####
 
-```erlang
-iex(1)> JSX.is_term?([ true, false, nil ])
+```iex
+iex> JSX.is_term?([ true, false, nil ])
 true
 ```
 
