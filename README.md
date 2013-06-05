@@ -28,12 +28,12 @@ copyright 2013 alisdair sullivan
   - [json <-> elixir mapping summary](#json---elixir-mapping)
   - [numbers](#numbers)
   - [strings](#strings)
-  - [true, false and null/nil](#true,-false-and-nullnil)
+  - [true, false and null/nil](#true-false-and-nullnil)
   - [arrays](#arrays)
   - [objects](#objects)
 * [fma](#frequently-made-accusations)
-  - [your lib sucks and encodes my records wrong](#your_lib_sucks_and_encodes_my_records_wrong)
-  - [you forgot to document incompletes](#you_forgot_to_document_incompletes)
+  - [your lib sucks and encodes my records wrong](#your-lib-sucks-and-encodes-my-records-wrong)
+  - [you forgot to document incompletes](#you-forgot-to-document-incompletes)
 * [options](#options)
   - [replaced bad utf8](#replaced_bad_utf8)
   - [escaped forward slashes](#escaped_forward_slashes)
@@ -563,7 +563,7 @@ what exactly constitutes valid json may be [altered](#option)
 ```iex
 iex> JSEX.is_json? "[ true, false, null ]"
 true
-iex> JSEX.is_json [:a, :b, :c]
+iex> JSEX.is_json? [:a, :b, :c]
 false
 ```
 
