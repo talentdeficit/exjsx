@@ -56,7 +56,7 @@ defmodule JSEX do
   end
   
   def is_json?(json, opts // []) do
-    true == :jsx.is_json(json, opts)
+    :jsx.is_json(json, opts)
   rescue
     _ -> false
   end
