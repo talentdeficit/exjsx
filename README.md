@@ -556,7 +556,7 @@ returns `true` if input is a valid json text, `false` if not
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options)
 
-what exactly constitutes valid json may be [altered](#option)
+what exactly constitutes valid json may be [altered](#options)
 
 ##### examples #####
 
@@ -575,7 +575,7 @@ returns `true` if input is an elixir term that can be safely converted to json,
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options)
 
-what exactly constitutes valid json may be [altered](#option)
+what exactly constitutes valid json may be [altered](#options)
 
 ##### examples #####
 
