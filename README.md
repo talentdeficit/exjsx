@@ -25,12 +25,12 @@ copyright 2013 alisdair sullivan
   - [minify](#minify-some-json)
   - [prettify](#prettify-some-json)
 * [description](#description)
-  - [json <-> elixir mapping](#json---elixir-mapping)
-    * [numbers](#numbers)
-    * [strings](#strings)
-    * [true, false and null/nil](#true,-false-and-nullnil)
-    * [arrays](#arrays)
-    * [objects](#objects)
+  - [json <-> elixir mapping summary](#json---elixir-mapping)
+  - [numbers](#numbers)
+  - [strings](#strings)
+  - [true, false and null/nil](#true,-false-and-nullnil)
+  - [arrays](#arrays)
+  - [objects](#objects)
 * [fma](#frequently-made-accusations)
 * [options](#options)
 * [exports](#exports)
@@ -127,7 +127,7 @@ i'm not going to make any promises. **especially** not latin1
 the [spec][rfc4627] thinks json values must be wrapped in a json array or 
 object but everyone else disagrees so jsex allows naked json values by default.
 
-### json &lt;-> elixir mapping ###
+#### json &lt;-> elixir mapping ####
 
 **json**                        | **elixir**
 --------------------------------|--------------------------------
