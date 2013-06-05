@@ -12,7 +12,10 @@ defmodule JSEX do
   
   def decode!(json, opts // []) do
     decoder_opts = :jsx_config.extract_config(opts)
-    :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json)
+    case :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json) do
+      {:incomplete, _} -> :erlang.error(:badarg)
+      result -> result
+    end
   end
 
   def decode(term, opts // []) do
@@ -22,7 +25,10 @@ defmodule JSEX do
   end
   
   def format!(json, opts // []) do
-    :jsx.format(json, opts)
+    case :jsx.format(json, opts) do
+      {:incomplete, _} -> :erlang.error(:badarg)
+      result -> result
+    end
   end
 
   def format(json, opts // []) do
@@ -31,9 +37,7 @@ defmodule JSEX do
     ArgumentError -> {:error, :badarg}
   end
 
-  def minify!(json) do
-    :jsx.minify(json)
-  end
+  def minify!(json), do: format!(json, [space: 0, indent: 0])
 
   def minify(json) do
     {:ok, minify! json}
@@ -41,9 +45,7 @@ defmodule JSEX do
     ArgumentError -> {:error, :badarg}
   end
   
-  def prettify!(json) do
-    :jsx.prettify(json)
-  end
+  def prettify!(json), do: format!(json, [space: 1, indent: 2])
 
   def prettify(json) do
     {:ok, prettify! json}
@@ -52,7 +54,7 @@ defmodule JSEX do
   end
   
   def is_json?(json, opts // []) do
-    :jsx.is_json(json, opts)
+    true == :jsx.is_json(json, opts)
   rescue
     _ -> false
   end
