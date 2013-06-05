@@ -68,18 +68,18 @@ $ mix test
 
 ```iex
 iex> JSEX.decode "{\"library\": \"jsx\", \"awesome\": true}"
-[{"library", "jsx"}, {"awesome", true}]
+{:ok,[{"library", "jsx"}, {"awesome", true}]}
 iex> JSEX.decode "[\"a\",\"list\",\"of\",\"words\"]"
-["a","list","of","words"]
+{:ok,["a","list","of","words"]}
 ```
 
 #### convert an elixir dict into a json string ####
 
 ```iex
 iex> JSEX.encode [library: "jsx", awesome: true]
-"{\"library\":\"jsx\",\"awesome\":true}"
+{:ok,"{\"library\":\"jsx\",\"awesome\":true}"}
 iex> JSEX.encode ["a","list","of","words"]
-"[\"a\",\"list\",\"of\",\"words\"]"
+{:ok,"[\"a\",\"list\",\"of\",\"words\"]"}
 ```
 
 #### check if a binary or a term is valid json ####
@@ -105,20 +105,20 @@ iex> JSEX.minify "{
 ...>     3
 ...>   ]
 ...> }"
-"{\"a list\":[1,2,3]}"
+{:ok,"{\"a list\":[1,2,3]}"}
 ```
 
 #### prettify some json ####
 
 ```iex
 iex> JSEX.prettify "{\"a list\":[1,2,3]}"
-"{
+{:ok,"{
   \"a list\": [
     1,
     2,
     3
   ]
-}"
+}"}
 ```
 
 
