@@ -11,7 +11,8 @@ defmodule JSEX do
   end
   
   def decode!(json, opts // []) do
-    :jsx.decoder(JSEX.Decoder, [], opts).(json)
+    decoder_opts = :jsx_config.extract_config(opts)
+    :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json)
   end
 
   def decode(term, opts // []) do
@@ -65,8 +66,12 @@ defmodule JSEX do
 end
    
 defmodule JSEX.Decoder do
-  def init(_) do
-    :jsx_to_term.init([])
+  def init(opts) do
+    :jsx_to_term.init(opts)
+  end
+
+  def handle_event({:literal, :null}, {[{:key, key}, last|terms], config}) do
+    {[[{key, nil}] ++ last] ++ terms, config}
   end
 
   def handle_event({:literal, :null}, {[last|terms], config}) do
