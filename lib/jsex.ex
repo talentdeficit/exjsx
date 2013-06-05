@@ -124,9 +124,9 @@ defimpl JSEX.Encoder, for: Tuple do
 end
 
 defimpl JSEX.Encoder, for: Atom do
+  def json(nil), do: [:null]
   def json(true), do: [true]
   def json(false), do: [false]
-  def json(nil), do: [:null]
   def json(_), do: raise ArgumentError
 end
 
