@@ -466,7 +466,7 @@ false if not
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options)
 
-what exactly constitutes valid json may be [altered](#option)
+what exactly constitutes valid json may be [altered](#options)
 
 ##### examples #####
 
