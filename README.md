@@ -6,9 +6,14 @@
  
 based on [jsx][jsx]
 
+testing provided by [travis-ci][travis]
+
+[![Build Status](https://secure.travis-ci.org/talentdeficit/jsex.png)](http://travis-ci.org/talentdeficit/jsex)
+
 jsex is released under the terms of the [MIT][MIT] license
 
 copyright 2013 alisdair sullivan
+
 
 ## index ##
 
