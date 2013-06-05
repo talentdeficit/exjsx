@@ -1,6 +1,6 @@
 # jsex (v0.1) #
 
-![why not jsex](https://a248.e.akamai.net/camo.github.com/232ca773fb180ba50524ed9c895911e1ac66e956/687474703a2f2f6c2e79696d672e636f6d2f636b2f696d6167652f41323237302f323237303038322f3330305f323237303038322e706e67)
+![why not jsex](ifyouknow.png)
 
 [json][json] for [elixir][elixir]
  
