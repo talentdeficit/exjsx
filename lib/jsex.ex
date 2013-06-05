@@ -5,62 +5,62 @@ defmodule JSEX do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
     :jsx.parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   end
-  
+
   def encode(term, opts // []) do
-    {:ok, encode!(term, opts)}
+    { :ok, encode!(term, opts) }
   rescue
-    ArgumentError -> {:error, :badarg}
+    ArgumentError -> { :error, :badarg }
   end
-  
+
   def decode!(json, opts // []) do
     decoder_opts = :jsx_config.extract_config(opts)
     case :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json) do
-      {:incomplete, _} -> raise ArgumentError
+      { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
   end
 
   def decode(term, opts // []) do
-    {:ok, decode!(term, opts)}
+    { :ok, decode!(term, opts) }
   rescue
-    ArgumentError -> {:error, :badarg}
+    ArgumentError -> { :error, :badarg }
   end
-  
+
   def format!(json, opts // []) do
     case :jsx.format(json, opts) do
-      {:incomplete, _} -> raise ArgumentError
+      { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
   end
 
   def format(json, opts // []) do
-    {:ok, format!(json, opts)}
+    { :ok, format!(json, opts) }
   rescue
-    ArgumentError -> {:error, :badarg}
+    ArgumentError -> { :error, :badarg }
   end
 
   def minify!(json), do: format!(json, [space: 0, indent: 0])
 
   def minify(json) do
-    {:ok, minify! json}
+    { :ok, minify!(json) }
   rescue
-    ArgumentError -> {:error, :badarg}
+    ArgumentError -> { :error, :badarg }
   end
-  
+
   def prettify!(json), do: format!(json, [space: 1, indent: 2])
 
   def prettify(json) do
-    {:ok, prettify! json}
+    { :ok, prettify!(json) }
   rescue
-    ArgumentError -> {:error, :badarg}
+    ArgumentError -> { :error, :badarg }
   end
-  
+
   def is_json?(json, opts // []) do
     :jsx.is_json(json, opts)
   rescue
     _ -> false
   end
-  
+
   def is_term?(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts)
     :jsx.parser(:jsx_verify, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
@@ -68,25 +68,25 @@ defmodule JSEX do
     _ -> false
   end
 end
-   
+
 defmodule JSEX.Decoder do
   def init(opts) do
     :jsx_to_term.init(opts)
   end
 
-  def handle_event({:literal, :null}, {[{:key, key}, last|terms], config}) do
-    {[[{key, nil}] ++ last] ++ terms, config}
+  def handle_event({ :literal, :null }, { [{ :key, key }, last|terms], config }) do
+    { [[{ key, nil }] ++ last] ++ terms, config }
   end
 
-  def handle_event({:literal, :null}, {[last|terms], config}) do
-    {[[nil] ++ last] ++ terms, config}
+  def handle_event({ :literal, :null }, { [last|terms], config }) do
+    { [[nil] ++ last] ++ terms, config }
   end
 
   def handle_event(event, config) do
     :jsx_to_term.handle_event(event, config)
   end
 end
-  
+
 defprotocol JSEX.Encoder do
   @only [Record, List, Tuple, Atom, Number, BitString, Any]
   def json(term)
@@ -108,16 +108,16 @@ defimpl JSEX.Encoder, for: Tuple do
     if function_exported?(elem(record, 0), :__record__, 1) do
       JSEX.Encoder.json Enum.map(
         record.__record__(:fields),
-        fn({key, _}) ->
+        fn({ key, _ }) ->
           index = record.__index__(key)
           value = elem(record, index)
-          {key, value}
+          { key, value }
         end
       )
     else
-      # record is not really a record
-      {key, value} = record
-      [{:key, key}] ++ JSEX.Encoder.json(value)
+      # Tuple is not actually a record
+      { key, value } = record
+      [{ :key, key }] ++ JSEX.Encoder.json(value)
     end
   end
   def json(_), do: raise ArgumentError
