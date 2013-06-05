@@ -13,6 +13,12 @@ copyright 2013 alisdair sullivan
 ## index ##
 
 * [quickstart](#quickstart)
+  - [building and running tests](#build-the-library-and-run-tests)
+  - [decoding json](#convert-a-json-string-into-an-elixir-dict)
+  - [encoding json](#convert-an-elixir-dict-into-a-json-string)
+  - [checking validity](#check-if-a-binary-or-a-term-is-valid-json)
+  - [minify](#minify-some-json)
+  - [prettify](#prettify-some-json)
 * [description](#description)
   - [json <-> elixir mapping](#json---elixir-mapping)
 * [fma](#frequently-made-accusations)
@@ -30,23 +36,23 @@ copyright 2013 alisdair sullivan
 
 ## quickstart ##
 
-#### to build the library and run tests ####
+#### build the library and run tests ####
 
 ```bash
 $ mix compile
 $ mix test
 ```
 
-#### to convert a utf8 binary containing a json string into an elixir keyword list ####
+#### convert a json string into an elixir dict ####
 
 ```iex
 iex> JSEX.decode "{\"library\": \"jsx\", \"awesome\": true}"
-[library: "jsx", awesome: true]
+[{"library", "jsx"}, {"awesome", true}]
 iex> JSEX.decode "[\"a\",\"list\",\"of\",\"words\"]"
 ["a","list","of","words"]
 ```
 
-#### to convert an elixir keyword list into a utf8 binary containing a json string ####
+#### convert an elixir dict into a json string ####
 
 ```iex
 iex> JSEX.encode [library: "jsx", awesome: true]
@@ -55,7 +61,7 @@ iex> JSEX.encode ["a","list","of","words"]
 "[\"a\",\"list\",\"of\",\"words\"]"
 ```
 
-#### to check if a binary or a term is valid json ####
+#### check if a binary or a term is valid json ####
 
 ```iex
 iex> JSEX.is_json? "[\"this is json\"]"
@@ -68,7 +74,7 @@ iex> JSEX.is_term? [:this, :is, :not]
 false
 ```
 
-#### to minify some json ####
+#### minify some json ####
 
 ```iex
 iex> JSEX.minify "{
@@ -81,7 +87,7 @@ iex> JSEX.minify "{
 "{\"a list\":[1,2,3]}"
 ```
 
-#### to prettify some json ####
+#### prettify some json ####
 
 ```iex
 iex> JSEX.prettify "{\"a list\":[1,2,3]}"
