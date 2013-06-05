@@ -32,6 +32,8 @@ copyright 2013 alisdair sullivan
   - [arrays](#arrays)
   - [objects](#objects)
 * [fma](#frequently-made-accusations)
+  - [your lib sucks and encodes my records wrong](#your_lib_sucks_and_encodes_my_records_wrong)
+  - [you forgot to document incompletes](#you_forgot_to_document_incompletes)
 * [options](#options)
   - [replaced bad utf8](#replaced_bad_utf8)
   - [escaped forward slashes](#escaped_forward_slashes)
@@ -43,13 +45,13 @@ copyright 2013 alisdair sullivan
   - [dirty strings](#dirty_strings)
   - [relax](#relax)
 * [exports](#exports)
-  - [`decode`](#decodejson-opts)
-  - [`encode`](#encodeterm-opts)
-  - [`format`](#formatjson-opts)
-  - [`minify`](#minifyjson)
-  - [`prettify`](#prettifyjson)
-  - [`is_json`](#is_jsonjson-opts)
-  - [`is_term`](#is_termterm-opts)
+  - [decode and decode!](#decodejson-opts)
+  - [encode and encode!](#encodeterm-opts)
+  - [format and format!](#formatjson-opts)
+  - [minify and minify!](#minifyjson)
+  - [prettify and prettify!](#prettifyjson)
+  - [is_json](#is_jsonjson-opts)
+  - [is_term](#is_termterm-opts)
 * [acknowledgements](#acknowledgements)
 
 
@@ -121,7 +123,6 @@ iex> JSEX.prettify "{\"a list\":[1,2,3]}"
 
 
 ## description ##
-
 
 jsex is an [elixir][elixir] application for consuming, producing and manipulating 
 [json][json]
@@ -247,6 +248,10 @@ and pass it to the encoder with `[{:raw, "{\"name\": \"Lord Walder Frey\"}"}]`
 
 someone should write a macro that does this and make a pull request
 
+#### you forgot to document incompletes ####
+
+no i didn't. they are [jsx][jsx] only for now. stay tuned tho
+
 
 ## options ##
 
@@ -332,109 +337,221 @@ json input is, you just want the parser to do the best it can
 
 ## exports ##
 
-
 #### `decode(json, opts)` ####
 
-`decode` parses a json text (a `BitString`) and produces an elixir term
+`decode` parses a json text (a `BitString`) and produces `{:ok, result}` or
+`{:error, reason}`
 
 `opts` has the default value `[]` and can be a list containing any of the
-standard jsex [options](#options)
+standard jsex [options](#options) plus the following
+
+* `{:labels, :binary}`
+    json object's keys will be decoded to `BitStrings`. the default
+
+* `{:labels, :atom}`
+    json object's keys will be decoded to `Atoms`
+
+* `{:labels, :existing_atom}`
+    json object's keys will be decoded to `Atoms` if they are already
+    known to the runtime, otherwise the decoder will return an error
 
 ##### examples #####
 
 ```iex
 iex> JSEX.decode "[true, false, null]"
 {:ok,[true,false,nil]}
-iex> JSEX.decode "invalid json"
+iex> JSEX.decode("{\"key\": true}", [{:labels, :binary}])
+{:ok,[{"key",true}]}
+iex> JSEX.decode("{\"key\": true}", [{:labels, :atom}])
+{:ok,[key: true]}
+iex> JSEX.decode [:a, :b, :c]
 {:error,:badarg}
 ```
 
+#### `decode!(json, opts)` ####
+
+`decode!` parses a json text (a `BitString`) and produces `result` or
+an `ArgumentError` exception
+
+see [decode](#decodejson-opts) for opts
+
+##### examples #####
+
+```iex
+iex> JSEX.decode! "[true, false, null]"
+[true,false,nil]
+iex> JSEX.decode! [:a, :b, :c]
+** (ArgumentError) argument error
+```
 
 #### `encode(term, opts)` ####
 
-`encode` converts an elixir term into a json text (a BitString)
+`encode` produces takes an elixir term and produces `{:ok, json}` or
+`{:error, :badarg}`
 
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options) plus the following
 
-* `{space, n}`
+* `{:space, n}`
     inserts `n` spaces after every comma and colon in your  json output.
-    `space` is an alias for `{space, 1}`. the default is `{space, 0}`
+    `:space` is an alias for `{:space, 1}`. the default is `{:space, 0}`
 
-* `{indent, n}`
+* `{:indent, n}`
     inserts a newline and `n` spaces for each level of indentation in your
-    json output. note that this overrides spaces inserted after a comma.
-    `indent` is an alias for `{indent, 1}`. the default is `{indent, 0}`
+    json output after each comma. note that this overrides spaces inserted
+    after a comma. `:indent` is an alias for `{:indent, 1}`. the default
+    is `{:indent, 0}`
 
 ##### examples #####
 
 ```iex
 iex> JSEX.encode [true, false, nil]
 {:ok,"[true,false,null]"}
+iex> JSEX.encode([a: 1, b: 2, c: 3], [{:space, 2}, :indent])
+{:ok,"{
+ \"a\":  1,
+ \"b\":  2,
+ \"c\":  3
+}"}
+iex> JSEX.encode([a: 1, b: 2, c: 3], [:space, {:indent, 4}])
+{:ok,"{
+    \"a\": 1,
+    \"b\": 2,
+    \"c\": 3
+}"}
 iex> JSEX.encode [:a, :b, :c]
 {:error,:badarg}
-iex> JSEX.encode! [true, false, nil]
-"[true,false,null]"
 ```
 
+#### `encode!(json, opts)` ####
+
+`encode!` produces takes an elixir term and produces `json` or
+an `ArgumentError` exception
+
+see [encode](#encodejson-opts) for opts
+
+##### examples #####
+
+```iex
+iex> JSEX.encode! [true, false, null]
+[true,false,nil]
+iex> JSEX.encode! [:a, :b, :c]
+** (ArgumentError) argument error
+```
 
 #### `format(json, opts)` ####
 
+`format` parses a json text and produces formatted `{:ok, json}` or
+`{:error, :badarg}`
 
-`format` parses a json text and produces a formatted json text
-
-`opts` has the default value `[]` and can be a list containing any of the
-standard jsex [options](#options) plus the following
-
-* `{space, n}`
-    inserts `n` spaces after every comma and colon in your  json output.
-    `space` is an alias for `{space, 1}`. the default is `{space, 0}`
-
-* `{indent, n}`
-    inserts a newline and `n` spaces for each level of indentation in your
-    json output. note that this overrides spaces inserted after a comma.
-    `indent` is an alias for `{indent, 1}`. the default is `{indent, 0}`
+see [encode](#encodejson-opts) for opts
 
 ##### examples #####
 
 ```iex
-iex> JSEX.format("[ true,false,null ]", [space: 2]
+iex> JSEX.format "[ true, false, null ]"
+{:ok,"[true,false,null]"}
+iex> JSEX.format("[ true, false, null ]", [space: 2]
 {:ok,"[true,  false,  null]"}
+iex> JSEX.format("[ true, false, null ]", [space: 4]
+{:ok,"[true,    false,    null]"}
+iex> JSEX.format "{\"foo\":true,\"bar\":false}"
+{:ok,"{\"foo\":true,\"bar\":false}"}
+iex> JSEX.format("{\"foo\":true,\"bar\":false}", [:space])
+{:ok,"{\"foo\": true,\"bar\": false}"}
+iex> JSEX.format("{\"foo\":true,\"bar\":false}", [space: 2, indent: 4])
+{:ok,"{
+    \"foo\":  true,
+    \"bar\":  false
+}"}
+iex> JSEX.format [:a, :b, :c]
+{:error,:badarg}
 ```
 
+#### `format!(json, opts)` ####
+
+`format!` parses a json text and produces formatted `json` or
+an `ArgumentError` exception
+
+see [encode](#encodejson-opts) for opts
+
+##### examples #####
+
+```iex
+iex> JSEX.format! "[ true, false, null ]"
+"[true,false,null]"
+iex> JSEX.format!("{\"foo\":true,\"bar\":false}", [space: 2, indent: 4])
+"{
+    \"foo\":  true,
+    \"bar\":  false
+}"
+iex> JSEX.format! [:a, :b, :c]
+** (ArgumentError) argument error
+```
 
 #### `minify(json)` ####
 
-`minify` parses a json text and produces a new json text stripped of whitespace
+`minify` is an alias for `format(json, [space: 0, indent: 0])`
 
 ##### examples #####
 
 ```iex
-iex> JSEX.minify("[ true, false, null ]")
+iex> JSEX.minify "[ true, false, null ]"
 {:ok,"[true,false,null]"}
+iex> JSEX.minify [:a, :b, :c]
+{:error,:badarg}
 ```
 
+#### `minify!(json)` ####
+
+`minify!` is an alias for `format!(json, [space: 0, indent: 0])`
+
+##### examples #####
+
+```iex
+iex> JSEX.minify! "[ true, false, null ]"
+"[true,false,null]"
+iex> JSEX.minify [:a, :b, :c]
+** (ArgumentError) argument error
+```
 
 #### `prettify(json)` ####
 
-`prettify` parses a json text and produces a new json 
-text equivalent to `format(json, [space: 1, indent: 2])`
+`prettify` is an alias for `format(json, [space: 1, indent: 2])`
 
 ##### examples #####
 
 ```iex
-iex> JSEX.prettify("[ true, false, null ]")
+iex> JSEX.prettify "[ true, false, null ]"
 {:ok,"[
   true,
   false,
   null
 ]"}
+iex> JSEX.prettify [:a, :b, :c]
+{:error,:badarg}
 ```
 
+#### `prettify!(json)` ####
+
+`prettify!` is an alias for `format!(json, [space: 1, indent: 2])`
+
+##### examples #####
+
+```iex
+iex> JSEX.prettify "[ true, false, null ]"
+"[
+  true,
+  false,
+  null
+]"
+iex> JSEX.prettify [:a, :b, :c]
+** (ArgumentError) argument error
+```
 
 #### `is_json?(json, opts)` ####
 
-returns true if input is a valid json text, false if not
+returns `true` if input is a valid json text, `false` if not
 
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options)
@@ -444,15 +561,16 @@ what exactly constitutes valid json may be [altered](#option)
 ##### examples #####
 
 ```iex
-iex> JSEX.is_json?("[ true, false, null ]")
+iex> JSEX.is_json? "[ true, false, null ]"
 true
+iex> JSEX.is_json [:a, :b, :c]
+false
 ```
-
 
 #### `is_term?(term, opts)` ####
 
-returns true if input is an elixir term that can be safely converted to json,
-false if not
+returns `true` if input is an elixir term that can be safely converted to json,
+`false` if not
 
 `opts` has the default value `[]` and can be a list containing any of the
 standard jsex [options](#options)
@@ -462,8 +580,10 @@ what exactly constitutes valid json may be [altered](#option)
 ##### examples #####
 
 ```iex
-iex> JSEX.is_term?([ true, false, nil ])
+iex> JSEX.is_term? [ true, false, nil ]
 true
+iex> JSEX.is_term? [:a, :b, :c]
+false
 ```
 
 
