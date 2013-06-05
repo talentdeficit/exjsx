@@ -9,7 +9,7 @@ defmodule JSEX.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    []
+    [applications: %w(jsx)a]
   end
 
   defp deps do
