@@ -15,7 +15,7 @@ defmodule JSEX do
   def decode!(json, opts // []) do
     decoder_opts = :jsx_config.extract_config(opts)
     case :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json) do
-      {:incomplete, _} -> :erlang.error(:badarg)
+      {:incomplete, _} -> raise ArgumentError
       result -> result
     end
   end
@@ -28,7 +28,7 @@ defmodule JSEX do
   
   def format!(json, opts // []) do
     case :jsx.format(json, opts) do
-      {:incomplete, _} -> :erlang.error(:badarg)
+      {:incomplete, _} -> raise ArgumentError
       result -> result
     end
   end
