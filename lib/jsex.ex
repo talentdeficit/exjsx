@@ -96,10 +96,10 @@ defimpl JSEX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([first|_] = list) when is_tuple(first) do
-    [:start_object] ++ flatten(Enum.map(list, fn(term) -> JSEX.Encoder.json(term) end)) ++ [:end_object]
+    [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
   end
   def json(list) do
-    [:start_array] ++ flatten(Enum.map(list, fn(term) -> JSEX.Encoder.json(term) end)) ++ [:end_array]
+    [:start_array] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_array]
   end
 end
 
