@@ -26,6 +26,11 @@ copyright 2013 alisdair sullivan
   - [prettify](#prettify-some-json)
 * [description](#description)
   - [json <-> elixir mapping](#json---elixir-mapping)
+    * [numbers](#numbers)
+    * [strings](#strings)
+    * [true, false and null/nil](#true,-false-and-nullnil)
+    * [arrays](#arrays)
+    * [objects](#objects)
 * [fma](#frequently-made-accusations)
 * [options](#options)
 * [exports](#exports)
@@ -109,11 +114,11 @@ iex> JSEX.prettify "{\"a list\":[1,2,3]}"
 ## description ##
 
 
-jsex is an elixir application for consuming, producing and manipulating 
+jsex is an [elixir][elixir] application for consuming, producing and manipulating 
 [json][json]
 
-json has a [spec][rfc4627] but common usage differs subtly. it's common 
-usage jsex attempts to address, with guidance from the spec
+json has a [spec][rfc4627] but common usage deviates in a number of cases. jsex
+attempts to address common usage while following the spirit of the spec
 
 all json produced and consumed by jsex should be `utf8` encoded text or a 
 reasonable approximation thereof. ascii works too, but anything beyond that 
@@ -122,82 +127,81 @@ i'm not going to make any promises. **especially** not latin1
 the [spec][rfc4627] thinks json values must be wrapped in a json array or 
 object but everyone else disagrees so jsex allows naked json values by default.
 
-here is a table of how various json values map to elixir:
-
 ### json &lt;-> elixir mapping ###
 
 **json**                        | **elixir**
 --------------------------------|--------------------------------
 `number`                        | `Number`
 `string`                        | `BitString`
-`true`, `false` and `null`      | `true`, `false` and `nil`
+`true` and `false`              | `true` and `false`
+`null`                          | `nil`
 `array`                         | `List`
 `object`                        | `[{}]`, `Dict` and `Record`
 
-*   numbers
+#### numbers ####
 
-    javascript and thus json represent all numeric values with floats. as 
-    this is woefully insufficient for many uses, **jsex**, just like elixir, 
-    supports bigints. whenever possible, this library will interpret json 
-    numbers that look like integers as integers. other numbers will be converted 
-    to elixir's floating point type, which is nearly but not quite iee754. 
-    negative zero is not representable in elixir (zero is unsigned in elixir and 
-    `0` is equivalent to `-0`) and will be interpreted as regular zero. numbers 
-    not representable are beyond the concern of this implementation, and will 
-    result in parsing errors
+javascript and thus json represent all numeric values with floats. as 
+this is woefully insufficient for many uses, **jsex**, just like elixir, 
+supports bigints. whenever possible, this library will interpret json 
+numbers that look like integers as integers. other numbers will be converted 
+to elixir's floating point type, which is nearly but not quite iee754. 
+negative zero is not representable in elixir (zero is unsigned in elixir and 
+`0` is equivalent to `-0`) and will be interpreted as regular zero. numbers 
+not representable are beyond the concern of this implementation, and will 
+result in parsing errors
 
-    when converting from elixir to json, numbers are represented with their 
-    shortest representation that will round trip without loss of precision. this 
-    means that some floats may be superficially dissimilar (although 
-    functionally equivalent). for example, `1.0000000000000001` will be 
-    represented by `1.0`
+when converting from elixir to json, numbers are represented with their 
+shortest representation that will round trip without loss of precision. this 
+means that some floats may be superficially dissimilar (although 
+functionally equivalent). for example, `1.0000000000000001` will be 
+represented by `1.0`
 
-*   strings
+#### strings ####
 
-    the json [spec][rfc4627] is frustratingly vague on the exact details of json 
-    strings. json must be unicode, but no encoding is specified. javascript 
-    explicitly allows strings containing codepoints explicitly disallowed by 
-    unicode. json allows implementations to set limits on the content of 
-    strings. other implementations attempt to resolve this in various ways. this 
-    implementation, in default operation, only accepts strings that meet the 
-    constraints set out in the json spec (strings are sequences of unicode 
-    codepoints deliminated by `"` (`u+0022`) that may not contain control codes 
-    unless properly escaped with `\` (`u+005c`)) and that are encoded in `utf8`
+the json [spec][rfc4627] is frustratingly vague on the exact details of json 
+strings. json must be unicode, but no encoding is specified. javascript 
+explicitly allows strings containing codepoints explicitly disallowed by 
+unicode. json allows implementations to set limits on the content of 
+strings. other implementations attempt to resolve this in various ways. this 
+implementation, in default operation, only accepts strings that meet the 
+constraints set out in the json spec (strings are sequences of unicode 
+codepoints deliminated by `"` (`u+0022`) that may not contain control codes 
+unless properly escaped with `\` (`u+005c`)) and that are encoded in `utf8`
 
-    the utf8 restriction means improperly paired surrogates are explicitly 
-    disallowed. `u+d800` to `u+dfff` are allowed, but only when they form valid 
-    surrogate pairs. surrogates encountered otherwise result in errors
+the utf8 restriction means improperly paired surrogates are explicitly 
+disallowed. `u+d800` to `u+dfff` are allowed, but only when they form valid 
+surrogate pairs. surrogates encountered otherwise result in errors
 
-    json string escapes of the form `\uXXXX` will be converted to their 
-    equivalent codepoints during parsing. this means control characters and 
-    other codepoints disallowed by the json spec may be encountered in resulting 
-    strings, but codepoints disallowed by the unicode spec will not be. in the 
-    interest of pragmatism there is an [option](#options) for looser parsing
+json string escapes of the form `\uXXXX` will be converted to their 
+equivalent codepoints during parsing. this means control characters and 
+other codepoints disallowed by the json spec may be encountered in resulting 
+strings, but codepoints disallowed by the unicode spec will not be. in the 
+interest of pragmatism there is an [option](#options) for looser parsing
 
-    all elixir strings are represented by BitStrings. the encoder will check
-    strings for conformance. noncharacters (like `u+ffff`)  are allowed in elixir 
-    utf8 encoded binaries, but not in strings passed to  the encoder (although,
-    again, see [options](#options))
+all elixir strings are represented by BitStrings. the encoder will check
+strings for conformance. noncharacters (like `u+ffff`)  are allowed in elixir 
+utf8 encoded binaries, but not in strings passed to the encoder (although,
+again, see [options](#options))
 
-    this implementation performs no normalization on strings beyond that 
-    detailed here. be careful when comparing strings as equivalent strings 
-    may have different `utf8` encodings
+this implementation performs no normalization on strings beyond that 
+detailed here. be careful when comparing strings as equivalent strings 
+may have different `utf8` encodings
 
-*   true, false and null
+#### true, false and null/nil ####
 
-    the json primitives `true`, `false` and `null` are represented by the 
-    elixir atoms `true`, `false` and `nil`
+the json primitives `true`, `false` and `null` are represented by the 
+elixir atoms `true`, `false` and `nil`
 
-*   arrays
+#### arrays ####
 
-    json arrays are represented with elixir lists of json values as described 
-    in this section
+json arrays are represented with elixir lists of json values as described 
+in this section
 
-*   objects
+#### objects ####
 
-    json objects are represented by elixir dicts. keys are atoms or bitstrings and
-    values are valid json values. records are serialized to objects automagically
-    but there is currently no way to perform the reverse. stay tuned tho
+json objects are represented by elixir dicts. keys are atoms or bitstrings and
+values are valid json values. records are serialized to objects automagically
+but there is currently no way to perform the reverse. stay tuned tho
 
 
 ## frequently made accusations ##
