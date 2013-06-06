@@ -179,3 +179,22 @@ defmodule JSEX.Tests.Records do
       == { :ok, "{\"name\":\"Lord Walder Frey\"}" })
   end
 end
+
+defmodule JSEX.Tests.Errors do
+  use ExUnit.Case
+
+  test "decode {", do: assert(JSEX.decode("{") == { :error, :badarg })
+  test "decode! {", do: assert_raise(ArgumentError, fn -> JSEX.decode!("{") end)
+  
+  test "format {", do: assert(JSEX.format("{") == { :error, :badarg })
+  test "format! {", do: assert_raise(ArgumentError, fn -> JSEX.format!("{") end)
+  
+  test "decode :error", do: assert(JSEX.decode(:error) == { :error, :badarg })
+  test "decode! :error", do: assert_raise(ArgumentError, fn -> JSEX.decode!(:error) end)
+  
+  test "format :error", do: assert(JSEX.format(:error) == { :error, :badarg })
+  test "format! :error", do: assert_raise(ArgumentError, fn -> JSEX.format!(:error) end)
+
+  test "encode self", do: assert(JSEX.encode(self) == { :error, :badarg })
+  test "encode! self", do: assert_raise(ArgumentError, fn -> JSEX.encode!(self) end)
+end
