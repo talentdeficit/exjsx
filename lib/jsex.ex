@@ -56,7 +56,10 @@ defmodule JSEX do
   end
 
   def is_json?(json, opts // []) do
-    :jsx.is_json(json, opts)
+    case :jsx.is_json(json, opts) do
+      { :incomplete, _ } -> raise ArgumentError
+      result -> result
+    end
   rescue
     _ -> false
   end
