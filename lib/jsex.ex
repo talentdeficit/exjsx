@@ -120,6 +120,9 @@ defimpl JSEX.Encoder, for: Tuple do
       [{ :key, key }] ++ JSEX.Encoder.json(value)
     end
   end
+  def json({ key, value }) when is_bitstring(key) or is_atom(key) do
+    [{ :key, key }] ++ JSEX.Encoder.json(value)
+  end
   def json(_), do: raise ArgumentError
 end
 
