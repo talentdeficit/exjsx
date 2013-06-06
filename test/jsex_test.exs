@@ -12,7 +12,7 @@ defmodule JSEX.Tests.Helpers do
         { "x", [1,2,3] },
         { "y", [{}] },
         { "z", [[[]]] }
-      ] }
+      ]}
     ]
   end
   def compoundobj(:json), do: "{\"a\":[true,false,null],\"b\":\"hallo world\",\"c\":{\"x\":[1,2,3],\"y\":{},\"z\":[[[]]]}}"
@@ -83,57 +83,87 @@ defmodule JSEX.Tests.Encode do
   use ExUnit.Case
   import JSEX.Tests.Helpers
 
+  test "encode empty object" do
+    assert(JSEX.encode([{}]) == { :ok, "{}" })
+  end
+
   test "encode! empty object" do
     assert(JSEX.encode!([{}]) == "{}")
+  end
+
+  test "encode empty list" do
+    assert(JSEX.encode([]) == { :ok, "[]" })
   end
 
   test "encode! empty list" do
     assert(JSEX.encode!([]) == "[]")
   end
 
+  test "encode list of empty lists" do
+    assert(JSEX.encode([[], [], []]) == { :ok, "[[],[],[]]" })
+  end
+
   test "encode! list of empty lists" do
     assert(JSEX.encode!([[], [], []]) == "[[],[],[]]")
+  end
+
+  test "encode list of empty objects" do
+    assert(JSEX.encode([[{}], [{}], [{}]]) == { :ok, "[{},{},{}]" })
   end
 
   test "encode! list of empty objects" do
     assert(JSEX.encode!([[{}], [{}], [{}]]) == "[{},{},{}]")
   end
 
+  test "encode literals" do
+    assert(JSEX.encode([true, false, nil]) == { :ok, "[true,false,null]" })
+  end
+
   test "encode! literals" do
     assert(JSEX.encode!([true, false, nil]) == "[true,false,null]")
+  end
+
+  test "encode numbers" do
+    assert(JSEX.encode(numbers(:ex)) == { :ok, numbers(:json) })
   end
 
   test "encode! numbers" do
     assert(JSEX.encode!(numbers(:ex)) == numbers(:json))
   end
 
+  test "encode strings" do
+    assert(JSEX.encode(["hallo", "world"]) == { :ok, "[\"hallo\",\"world\"]" })
+  end
+
   test "encode! strings" do
     assert(JSEX.encode!(["hallo", "world"]) == "[\"hallo\",\"world\"]")
+  end
+
+  test "encode simple object" do
+    assert(JSEX.encode([key: true]) == { :ok, "{\"key\":true}" })
   end
 
   test "encode! simple object" do
     assert(JSEX.encode!([key: true]) == "{\"key\":true}")
   end
 
-  test "encode! compound object" do
-    assert(JSEX.encode!([
-        a: [true,false,nil],
-        b: "hallo world",
-        c: [
-          x: [1,2,3],
-          y: [{}],
-          z: [[[]]]
-        ]
-      ]) == 
-      "{\"a\":[true,false,null],\"b\":\"hallo world\",\"c\":{\"x\":[1,2,3],\"y\":{},\"z\":[[[]]]}}"
-    )
+  test "encode compound object" do
+    assert(JSEX.encode(compoundobj(:ex)) == { :ok, compoundobj(:json) })
   end
 
+  test "encode! compound object" do
+    assert(JSEX.encode!(compoundobj(:ex)) == compoundobj(:json))
+  end
+end
+
+defmodule JSEX.Tests.Records do
+  use ExUnit.Case
+  
   defrecord SimpleRecord, name: nil, rank: nil
 
-  test "encode! a simple record" do
-    assert(JSEX.encode!(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
-      == "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}")
+  test "encode a simple record" do
+    assert(JSEX.encode(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
+      == { :ok, "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}" })
   end
 
   defrecord BasicRecord, name: nil, rank: nil
@@ -144,8 +174,8 @@ defmodule JSEX.Tests.Encode do
     end
   end
 
-  test "encode! a basic record with a protocol defined" do
-    assert(JSEX.encode!(BasicRecord.new(name: "Walder Frey", rank: "Lord"))
-      == "{\"name\":\"Lord Walder Frey\"}")
+  test "encode a basic record with a protocol defined" do
+    assert(JSEX.encode(BasicRecord.new(name: "Walder Frey", rank: "Lord"))
+      == { :ok, "{\"name\":\"Lord Walder Frey\"}" })
   end
 end
