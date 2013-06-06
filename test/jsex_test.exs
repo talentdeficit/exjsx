@@ -180,6 +180,18 @@ defmodule JSEX.Tests.Records do
   end
 end
 
+defmodule JSEX.Tests.Is do
+  use ExUnit.Case
+
+  test "is_json? {}", do: assert(JSEX.is_json?("{}") == true)
+  test "is_json? {", do: assert(JSEX.is_json?("{") == false)
+  test "is_json? :error", do: assert(JSEX.is_json?(:error) == false)
+
+  test "is_term? [{}]", do: assert(JSEX.is_term?([{}]) == true)
+  test "is_json? {}", do: assert(JSEX.is_term?({}) == false)
+  test "is_json? self", do: assert(JSEX.is_term?(:error) == false)
+end
+
 defmodule JSEX.Tests.Errors do
   use ExUnit.Case
 
