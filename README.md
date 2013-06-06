@@ -50,8 +50,8 @@ copyright 2013 alisdair sullivan
   - [format and format!](#formatjson-opts)
   - [minify and minify!](#minifyjson)
   - [prettify and prettify!](#prettifyjson)
-  - [is_json](#is_jsonjson-opts)
-  - [is_term](#is_termterm-opts)
+  - [is_json?](#is_jsonjson-opts)
+  - [is_term?](#is_termterm-opts)
 * [acknowledgements](#acknowledgements)
 
 
