@@ -139,12 +139,28 @@ defmodule JSEX.Tests.Encode do
     assert(JSEX.encode!(["hallo", "world"]) == "[\"hallo\",\"world\"]")
   end
 
-  test "encode simple object" do
+  test "encode keylist" do
     assert(JSEX.encode([key: true]) == { :ok, "{\"key\":true}" })
   end
 
-  test "encode! simple object" do
+  test "encode! keylist" do
     assert(JSEX.encode!([key: true]) == "{\"key\":true}")
+  end
+  
+  test "encode object with bitstring key" do
+    assert(JSEX.encode([{"key", true}]) == { :ok, "{\"key\":true}" })
+  end
+
+  test "encode! object with bitstring key" do
+    assert(JSEX.encode!([{"key", true}]) == "{\"key\":true}")
+  end
+
+  test "encode object with atom key" do
+    assert(JSEX.encode([{:key, true}]) == { :ok, "{\"key\":true}" })
+  end
+
+  test "encode! object with atom key" do
+    assert(JSEX.encode!([{:key, true}]) == "{\"key\":true}")
   end
 
   test "encode compound object" do
@@ -188,8 +204,8 @@ defmodule JSEX.Tests.Is do
   test "is_json? :error", do: assert(JSEX.is_json?(:error) == false)
 
   test "is_term? [{}]", do: assert(JSEX.is_term?([{}]) == true)
-  test "is_json? {}", do: assert(JSEX.is_term?({}) == false)
-  test "is_json? self", do: assert(JSEX.is_term?(:error) == false)
+  test "is_term? {}", do: assert(JSEX.is_term?({}) == false)
+  test "is_term? self", do: assert(JSEX.is_term?(:error) == false)
 end
 
 defmodule JSEX.Tests.Errors do
