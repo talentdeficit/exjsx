@@ -1,7 +1,9 @@
 import :lists, only: [flatten: 1]
 
 defmodule JSEX.Macros do
-  defmacro encoder(name) do
+  defmacro encoder(name, entrypoint // false) do
+    entrypoint = entrypoint or name
+    
     quote do
       defprotocol unquote(name) do
         @only [Record, List, Tuple, Atom, Number, BitString, Any]
@@ -12,17 +14,17 @@ defmodule JSEX.Macros do
         def json([]), do: [:start_array, :end_array]
         def json([{}]), do: [:start_object, :end_object]
         def json([first|_] = list) when is_tuple(first) do
-          [:start_object] ++ flatten(lc term inlist list, do: unquote(name).json(term)) ++ [:end_object]
+          [:start_object] ++ flatten(lc term inlist list, do: unquote(entrypoint).json(term)) ++ [:end_object]
         end
         def json(list) do
-          [:start_array] ++ flatten(lc term inlist list, do: unquote(name).json(term)) ++ [:end_array]
+          [:start_array] ++ flatten(lc term inlist list, do: unquote(entrypoint).json(term)) ++ [:end_array]
         end
       end
 
       defimpl unquote(name), for: Tuple do
         def json(record) when is_record(record) do
           if function_exported?(elem(record, 0), :__record__, 1) do
-            unquote(name).json Enum.map(
+            unquote(entrypoint).json Enum.map(
               record.__record__(:fields),
               fn({ key, _ }) ->
                 index = record.__index__(key)
@@ -33,11 +35,11 @@ defmodule JSEX.Macros do
           else
             # Tuple is not actually a record
             { key, value } = record
-            [{ :key, key }] ++ unquote(name).json(value)
+            [{ :key, key }] ++ unquote(entrypoint).json(value)
           end
         end
         def json({ key, value }) when is_bitstring(key) or is_atom(key) do
-          [{ :key, key }] ++ unquote(name).json(value)
+          [{ :key, key }] ++ unquote(entrypoint).json(value)
         end
         def json(_), do: raise ArgumentError
       end
