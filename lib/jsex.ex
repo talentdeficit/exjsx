@@ -1,71 +1,6 @@
 import :lists, only: [flatten: 1]
 
-defmodule JSEX.Macros do
-  defmacro encoder(name, entrypoint // false) do
-    entrypoint = entrypoint or name
-    
-    quote do
-      defprotocol unquote(name) do
-        @only [Record, List, Tuple, Atom, Number, BitString, Any]
-        def json(term)
-      end
-
-      defimpl unquote(name), for: List do
-        def json([]), do: [:start_array, :end_array]
-        def json([{}]), do: [:start_object, :end_object]
-        def json([first|_] = list) when is_tuple(first) do
-          [:start_object] ++ flatten(lc term inlist list, do: unquote(entrypoint).json(term)) ++ [:end_object]
-        end
-        def json(list) do
-          [:start_array] ++ flatten(lc term inlist list, do: unquote(entrypoint).json(term)) ++ [:end_array]
-        end
-      end
-
-      defimpl unquote(name), for: Tuple do
-        def json(record) when is_record(record) do
-          if function_exported?(elem(record, 0), :__record__, 1) do
-            unquote(entrypoint).json Enum.map(
-              record.__record__(:fields),
-              fn({ key, _ }) ->
-                index = record.__index__(key)
-                value = elem(record, index)
-                { key, value }
-              end
-            )
-          else
-            # Tuple is not actually a record
-            { key, value } = record
-            [{ :key, key }] ++ unquote(entrypoint).json(value)
-          end
-        end
-        def json({ key, value }) when is_bitstring(key) or is_atom(key) do
-          [{ :key, key }] ++ unquote(entrypoint).json(value)
-        end
-        def json(_), do: raise ArgumentError
-      end
-
-      defimpl unquote(name), for: Atom do
-        def json(nil), do: [:null]
-        def json(true), do: [true]
-        def json(false), do: [false]
-        def json(_), do: raise ArgumentError
-      end
-
-      defimpl unquote(name), for: [Number, BitString] do
-        def json(value), do: [value]
-      end
-
-      defimpl unquote(name), for: Any do
-        def json(_), do: raise ArgumentError
-      end
-    end
-  end
-end
-
 defmodule JSEX do
-  require JSEX.Macros
-  JSEX.Macros.encoder(Encoder)
-  
   def encode!(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
     :jsx.parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
@@ -153,4 +88,58 @@ defmodule JSEX.Decoder do
   def handle_event(event, config) do
     :jsx_to_term.handle_event(event, config)
   end
+end
+
+defprotocol JSEX.Encoder do
+  @only [Record, List, Tuple, Atom, Number, BitString, Any]
+  def json(term)
+end
+
+defimpl JSEX.Encoder, for: List do
+  def json([]), do: [:start_array, :end_array]
+  def json([{}]), do: [:start_object, :end_object]
+  def json([first|_] = list) when is_tuple(first) do
+    [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
+  end
+  def json(list) do
+    [:start_array] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_array]
+  end
+end
+
+defimpl JSEX.Encoder, for: Tuple do
+  def json(record) when is_record(record) do
+    if function_exported?(elem(record, 0), :__record__, 1) do
+      JSEX.Encoder.json Enum.map(
+        record.__record__(:fields),
+        fn({ key, _ }) ->
+          index = record.__index__(key)
+          value = elem(record, index)
+          { key, value }
+        end
+      )
+    else
+      # Tuple is not actually a record
+      { key, value } = record
+      [{ :key, key }] ++ JSEX.Encoder.json(value)
+    end
+  end
+  def json({ key, value }) when is_bitstring(key) or is_atom(key) do
+    [{ :key, key }] ++ JSEX.Encoder.json(value)
+  end
+  def json(_), do: raise ArgumentError
+end
+
+defimpl JSEX.Encoder, for: Atom do
+  def json(nil), do: [:null]
+  def json(true), do: [true]
+  def json(false), do: [false]
+  def json(_), do: raise ArgumentError
+end
+
+defimpl JSEX.Encoder, for: [Number, BitString] do
+  def json(value), do: [value]
+end
+
+defimpl JSEX.Encoder, for: Any do
+  def json(_), do: raise ArgumentError
 end
