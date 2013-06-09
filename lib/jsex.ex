@@ -3,7 +3,7 @@ import :lists, only: [flatten: 1]
 defmodule JSEX do
   def encode!(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    :jsx.parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   end
 
   def encode(term, opts // []) do
@@ -14,7 +14,7 @@ defmodule JSEX do
 
   def decode!(json, opts // []) do
     decoder_opts = :jsx_config.extract_config(opts)
-    case :jsx.decoder(JSEX.Decoder, opts, decoder_opts).(json) do
+    case decoder(JSEX.Decoder, opts, decoder_opts).(json) do
       { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
@@ -66,9 +66,21 @@ defmodule JSEX do
 
   def is_term?(term, opts // []) do
     parser_opts = :jsx_config.extract_config(opts)
-    :jsx.parser(:jsx_verify, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_verify, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   rescue
     _ -> false
+  end
+  
+  def encoder(handler, initialstate, opts) do
+    :jsx.encoder(handler, initialstate, opts)
+  end
+  
+  def decoder(handler, initialstate, opts) do
+    :jsx.decoder(handler, initialstate, opts)
+  end
+  
+  def parser(handler, initialstate, opts) do
+    :jsx.parser(handler, initialstate, opts)
   end
 end
 
