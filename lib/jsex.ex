@@ -107,6 +107,10 @@ defprotocol JSEX.Encoder do
   def json(term)
 end
 
+defimpl JSEX.Encoder, for: HashDict do
+  def json(dict), do: JSEX.Encoder.json(HashDict.to_list(dict))
+end
+
 defimpl JSEX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]

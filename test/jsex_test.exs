@@ -146,7 +146,15 @@ defmodule JSEX.Tests.Encode do
   test "encode! keylist" do
     assert(JSEX.encode!([key: true]) == "{\"key\":true}")
   end
-  
+
+  test "encode HashDict" do
+    assert(JSEX.encode(HashDict.new(key: true)) == { :ok, "{\"key\":true}" })
+  end
+
+  test "encode! HashDict" do
+    assert(JSEX.encode!(HashDict.new(key: true)) == "{\"key\":true}")
+  end
+
   test "encode object with bitstring key" do
     assert(JSEX.encode([{"key", true}]) == { :ok, "{\"key\":true}" })
   end
