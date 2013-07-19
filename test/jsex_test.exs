@@ -190,6 +190,11 @@ defmodule JSEX.Tests.Records do
       == { :ok, "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}" })
   end
 
+  test "encode a list of simple records" do
+    assert(JSEX.encode([SimpleRecord.new(name: "Walder Frey", rank: "Lord")])
+      == { :ok, "[{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}]" })
+  end
+
   defrecord BasicRecord, name: nil, rank: nil
 
   defimpl JSEX.Encoder, for: BasicRecord do
