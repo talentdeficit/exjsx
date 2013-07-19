@@ -128,7 +128,7 @@ defimpl JSEX.Encoder, for: Tuple do
       JSEX.Encoder.json Enum.map(
         record.__record__(:fields),
         fn({ key, _ }) ->
-          index = record.__index__(key)
+          index = record.__record__(:index, key)
           value = elem(record, index)
           { key, value }
         end
