@@ -116,7 +116,12 @@ defimpl JSEX.Encoder, for: List do
   def json([{}]), do: [:start_object, :end_object]
   def json([first|tail] = list) when is_tuple(first) do
     case first do
-      {_, _} -> [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
+      {key, _} ->
+        if is_atom(key) && function_exported?(key, :__record__, 1) do
+          [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
+        else
+          [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
+        end
       _ -> [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
     end
   end
