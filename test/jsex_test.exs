@@ -184,6 +184,7 @@ defmodule JSEX.Tests.Records do
   use ExUnit.Case
   
   defrecord SimpleRecord, name: nil, rank: nil
+  defrecord SimplerRecord, name: nil
 
   test "encode a simple record" do
     assert(JSEX.encode(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
@@ -193,6 +194,16 @@ defmodule JSEX.Tests.Records do
   test "encode a list of simple records" do
     assert(JSEX.encode([SimpleRecord.new(name: "Walder Frey", rank: "Lord")])
       == { :ok, "[{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}]" })
+  end
+
+  test "encode a simpler record" do
+    assert(JSEX.encode(SimplerRecord.new(name: "Walder Frey"))
+      == { :ok, "{\"name\":\"Walder Frey\"}" })
+  end
+
+  test "encode a list of simpler record" do
+    assert(JSEX.encode([SimplerRecord.new(name: "Walder Frey")])
+      == { :ok, "[{\"name\":\"Walder Frey\"}]" })
   end
 
   defrecord BasicRecord, name: nil, rank: nil
