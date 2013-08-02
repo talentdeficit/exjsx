@@ -14,6 +14,6 @@ defmodule JSEX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, github: "talentdeficit/jsx", tag: "v1.4.2", compile: "rebar compile"}]
+    [{:jsx, github: "talentdeficit/jsx", tag: "v1.4.2"}]
   end
 end
