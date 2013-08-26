@@ -135,11 +135,7 @@ defimpl JSEX.Encoder, for: Tuple do
     if function_exported?(elem(record, 0), :__record__, 1) do
       JSEX.Encoder.json Enum.map(
         record.__record__(:fields),
-        fn({ key, _ }) ->
-          index = record.__record__(:index, key)
-          value = elem(record, index)
-          { key, value }
-        end
+        fn({ key, _ }) -> { key, elem(record, record.__record__(:index, key)) } end
       )
     else
       # Tuple is not actually a record
