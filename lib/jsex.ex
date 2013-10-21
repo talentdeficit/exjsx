@@ -103,7 +103,7 @@ defmodule JSEX.Decoder do
 end
 
 defprotocol JSEX.Encoder do
-  @only [Record, List, Tuple, Atom, Number, BitString, Any]
+  @only [Record, List, Tuple, Atom, Integer, Float, BitString, Any]
   def json(term)
 end
 
@@ -156,7 +156,7 @@ defimpl JSEX.Encoder, for: Atom do
   def json(_), do: raise ArgumentError
 end
 
-defimpl JSEX.Encoder, for: [Number, BitString] do
+defimpl JSEX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
