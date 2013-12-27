@@ -539,13 +539,13 @@ iex> JSEX.prettify [:a, :b, :c]
 ##### examples #####
 
 ```iex
-iex> JSEX.prettify "[ true, false, null ]"
+iex> JSEX.prettify! "[ true, false, null ]"
 "[
   true,
   false,
   null
 ]"
-iex> JSEX.prettify [:a, :b, :c]
+iex> JSEX.prettify! [:a, :b, :c]
 ** (ArgumentError) argument error
 ```
 
