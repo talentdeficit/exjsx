@@ -1,18 +1,18 @@
 import :lists, only: [flatten: 1]
 
 defmodule JSEX do
-  def encode!(term, opts // []) do
+  def encode!(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
     parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   end
 
-  def encode(term, opts // []) do
+  def encode(term, opts \\ []) do
     { :ok, encode!(term, opts) }
   rescue
     ArgumentError -> { :error, :badarg }
   end
 
-  def decode!(json, opts // []) do
+  def decode!(json, opts \\ []) do
     decoder_opts = :jsx_config.extract_config(opts)
     case decoder(JSEX.Decoder, opts, decoder_opts).(json) do
       { :incomplete, _ } -> raise ArgumentError
@@ -20,20 +20,20 @@ defmodule JSEX do
     end
   end
 
-  def decode(term, opts // []) do
+  def decode(term, opts \\ []) do
     { :ok, decode!(term, opts) }
   rescue
     ArgumentError -> { :error, :badarg }
   end
 
-  def format!(json, opts // []) do
+  def format!(json, opts \\ []) do
     case :jsx.format(json, opts) do
       { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
   end
 
-  def format(json, opts // []) do
+  def format(json, opts \\ []) do
     { :ok, format!(json, opts) }
   rescue
     ArgumentError -> { :error, :badarg }
@@ -55,7 +55,7 @@ defmodule JSEX do
     ArgumentError -> { :error, :badarg }
   end
 
-  def is_json?(json, opts // []) do
+  def is_json?(json, opts \\ []) do
     case :jsx.is_json(json, opts) do
       { :incomplete, _ } -> false
       result -> result
@@ -64,7 +64,7 @@ defmodule JSEX do
     _ -> false
   end
 
-  def is_term?(term, opts // []) do
+  def is_term?(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts)
     parser(:jsx_verify, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
   rescue
