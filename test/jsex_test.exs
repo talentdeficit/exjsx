@@ -3,8 +3,8 @@ Code.require_file "test_helper.exs", __DIR__
 defmodule JSEX.Tests.Helpers do
   def numbers(:ex), do: [-18446744073709551617, -1.0, -1, 0, 0.0, 1, 1.0, 18446744073709551617]
   def numbers(:json), do: "[-18446744073709551617,-1.0,-1,0,0.0,1,1.0,18446744073709551617]"
-  
-  def compoundobj(:ex) do 
+
+  def compoundobj(:ex) do
     [
       { "a", [true,false,nil] },
       { "b", "hallo world" },
@@ -148,11 +148,11 @@ defmodule JSEX.Tests.Encode do
   end
 
   test "encode HashDict" do
-    assert(JSEX.encode(HashDict.new(key: true)) == { :ok, "{\"key\":true}" })
+    assert(JSEX.encode(Enum.into([key: true], HashDict.new)) == { :ok, "{\"key\":true}" })
   end
 
   test "encode! HashDict" do
-    assert(JSEX.encode!(HashDict.new(key: true)) == "{\"key\":true}")
+    assert(JSEX.encode!(Enum.into([key: true], HashDict.new)) == "{\"key\":true}")
   end
 
   test "encode object with bitstring key" do
@@ -182,7 +182,7 @@ end
 
 defmodule JSEX.Tests.Records do
   use ExUnit.Case
-  
+
   defrecord SimpleRecord, name: nil, rank: nil
   defrecord SimplerRecord, name: nil
 
@@ -237,13 +237,13 @@ defmodule JSEX.Tests.Errors do
 
   test "decode {", do: assert(JSEX.decode("{") == { :error, :badarg })
   test "decode! {", do: assert_raise(ArgumentError, fn -> JSEX.decode!("{") end)
-  
+
   test "format {", do: assert(JSEX.format("{") == { :error, :badarg })
   test "format! {", do: assert_raise(ArgumentError, fn -> JSEX.format!("{") end)
-  
+
   test "decode :error", do: assert(JSEX.decode(:error) == { :error, :badarg })
   test "decode! :error", do: assert_raise(ArgumentError, fn -> JSEX.decode!(:error) end)
-  
+
   test "format :error", do: assert(JSEX.format(:error) == { :error, :badarg })
   test "format! :error", do: assert_raise(ArgumentError, fn -> JSEX.format!(:error) end)
 
