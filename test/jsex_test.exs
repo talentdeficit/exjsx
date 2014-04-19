@@ -148,11 +148,11 @@ defmodule JSEX.Tests.Encode do
   end
 
   test "encode HashDict" do
-    assert(JSEX.encode(HashDict.new(key: true)) == { :ok, "{\"key\":true}" })
+    assert(JSEX.encode(Enum.into([key: true], HashDict.new)) == { :ok, "{\"key\":true}" })
   end
 
   test "encode! HashDict" do
-    assert(JSEX.encode!(HashDict.new(key: true)) == "{\"key\":true}")
+    assert(JSEX.encode!(Enum.into([key: true], HashDict.new)) == "{\"key\":true}")
   end
 
   test "encode object with bitstring key" do

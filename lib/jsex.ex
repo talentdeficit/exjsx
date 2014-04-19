@@ -89,12 +89,8 @@ defmodule JSEX.Decoder do
     :jsx_to_term.init(opts)
   end
 
-  def handle_event({ :literal, :null }, { [{ :key, key }, last|terms], config }) do
-    { [[{ key, nil }] ++ last] ++ terms, config }
-  end
-
-  def handle_event({ :literal, :null }, { [last|terms], config }) do
-    { [[nil] ++ last] ++ terms, config }
+  def handle_event({ :literal, :null }, config) do
+    :jsx_to_term.insert(:nil, config)
   end
 
   def handle_event(event, config) do
