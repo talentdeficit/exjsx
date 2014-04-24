@@ -3,7 +3,7 @@ defmodule JSEX.Mixfile do
 
   def project do
     [ app: :jsex,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: ">= 0.13.0",
       build_per_environment: false,
       deps: deps
