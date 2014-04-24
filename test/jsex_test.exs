@@ -5,15 +5,15 @@ defmodule JSEX.Tests.Helpers do
   def numbers(:json), do: "[-18446744073709551617,-1.0,-1,0,0.0,1,1.0,18446744073709551617]"
 
   def compoundobj(:ex) do
-    [
-      { "a", [true,false,nil] },
-      { "b", "hallo world" },
-      { "c", [
-        { "x", [1,2,3] },
-        { "y", [{}] },
-        { "z", [[[]]] }
-      ]}
-    ]
+    %{
+      "a" => [true,false,nil],
+      "b" => "hallo world",
+      "c" => %{
+        "x" => [1,2,3],
+        "y" => %{},
+        "z" => [[[]]]
+      }
+    }
   end
   def compoundobj(:json), do: "{\"a\":[true,false,null],\"b\":\"hallo world\",\"c\":{\"x\":[1,2,3],\"y\":{},\"z\":[[[]]]}}"
 end
@@ -23,11 +23,11 @@ defmodule JSEX.Tests.Decode do
   import JSEX.Tests.Helpers
 
   test "decode empty object" do
-    assert(JSEX.decode("{}") == { :ok, [{}] })
+    assert(JSEX.decode("{}") == { :ok, %{} })
   end
 
   test "decode! empty object" do
-    assert(JSEX.decode!("{}") == [{}])
+    assert(JSEX.decode!("{}") == %{})
   end
 
   test "decode empty list" do
@@ -63,11 +63,11 @@ defmodule JSEX.Tests.Decode do
   end
 
   test "decode simple object" do
-    assert(JSEX.decode("{\"key\": true}") == { :ok, [{"key", true}] })
+    assert(JSEX.decode("{\"key\": true}") == { :ok, %{"key" => true} })
   end
 
   test "decode! simple object" do
-    assert(JSEX.decode!("{\"key\": true}") == [{"key", true}])
+    assert(JSEX.decode!("{\"key\": true}") == %{"key" => true})
   end
 
   test "decode compound object" do
@@ -83,12 +83,20 @@ defmodule JSEX.Tests.Encode do
   use ExUnit.Case
   import JSEX.Tests.Helpers
 
-  test "encode empty object" do
+  test "encode empty object (list)" do
     assert(JSEX.encode([{}]) == { :ok, "{}" })
   end
 
-  test "encode! empty object" do
+  test "encode! empty object (list)" do
     assert(JSEX.encode!([{}]) == "{}")
+  end
+
+  test "encode empty object (map)" do
+    assert(JSEX.encode(%{}) == { :ok, "{}" })
+  end
+
+  test "encode! empty object (map)" do
+    assert(JSEX.encode!(%{}) == "{}")
   end
 
   test "encode empty list" do
@@ -108,11 +116,11 @@ defmodule JSEX.Tests.Encode do
   end
 
   test "encode list of empty objects" do
-    assert(JSEX.encode([[{}], [{}], [{}]]) == { :ok, "[{},{},{}]" })
+    assert(JSEX.encode([%{}, %{}, %{}]) == { :ok, "[{},{},{}]" })
   end
 
   test "encode! list of empty objects" do
-    assert(JSEX.encode!([[{}], [{}], [{}]]) == "[{},{},{}]")
+    assert(JSEX.encode!([%{}, %{}, %{}]) == "[{},{},{}]")
   end
 
   test "encode literals" do
@@ -147,6 +155,14 @@ defmodule JSEX.Tests.Encode do
     assert(JSEX.encode!([key: true]) == "{\"key\":true}")
   end
 
+  test "encode map" do
+    assert(JSEX.encode(%{ "key" => true }) == { :ok, "{\"key\":true}" })
+  end
+
+  test "encode! map" do
+    assert(JSEX.encode!(%{ "key" => true }) == "{\"key\":true}")
+  end
+
   test "encode HashDict" do
     assert(JSEX.encode(Enum.into([key: true], HashDict.new)) == { :ok, "{\"key\":true}" })
   end
@@ -156,19 +172,19 @@ defmodule JSEX.Tests.Encode do
   end
 
   test "encode object with bitstring key" do
-    assert(JSEX.encode([{"key", true}]) == { :ok, "{\"key\":true}" })
+    assert(JSEX.encode(%{ "key" => true }) == { :ok, "{\"key\":true}" })
   end
 
   test "encode! object with bitstring key" do
-    assert(JSEX.encode!([{"key", true}]) == "{\"key\":true}")
+    assert(JSEX.encode!(%{ "key" => true }) == "{\"key\":true}")
   end
 
   test "encode object with atom key" do
-    assert(JSEX.encode([{:key, true}]) == { :ok, "{\"key\":true}" })
+    assert(JSEX.encode(%{ :key => true }) == { :ok, "{\"key\":true}" })
   end
 
   test "encode! object with atom key" do
-    assert(JSEX.encode!([{:key, true}]) == "{\"key\":true}")
+    assert(JSEX.encode!(%{ :key => true }) == "{\"key\":true}")
   end
 
   test "encode compound object" do
@@ -228,6 +244,7 @@ defmodule JSEX.Tests.Is do
   test "is_json? :error", do: assert(JSEX.is_json?(:error) == false)
 
   test "is_term? [{}]", do: assert(JSEX.is_term?([{}]) == true)
+  test "is_term? %{}", do: assert(JSEX.is_term?(%{}) == true)
   test "is_term? {}", do: assert(JSEX.is_term?({}) == false)
   test "is_term? self", do: assert(JSEX.is_term?(:error) == false)
 end
