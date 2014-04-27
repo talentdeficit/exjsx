@@ -15,6 +15,12 @@ jsex is released under the terms of the [MIT][MIT] license
 copyright 2013 alisdair sullivan
 
 
+## feedback requested ##
+
+if you're a user of jsex and if you have a chance could you check out this issue about supporting maps
+and leave your feedback? thanks
+
+
 ## index ##
 
 * [quickstart](#quickstart)
