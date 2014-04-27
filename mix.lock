@@ -1,1 +1,1 @@
-%{"jsx": {:git, "git://github.com/talentdeficit/jsx.git", "4f63503aa2f92dc824e5b5a7f3c0f0fe283e4b0b", [tag: "v2.0"]}}
+%{"jsx": {:git, "git://github.com/talentdeficit/jsx.git", "507fa4c41db33c81e925ab53f4d789d234aaff2f", [tag: "v2.0.1"]}}

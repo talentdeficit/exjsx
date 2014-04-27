@@ -1,4 +1,4 @@
-# jsex (v1.0.1) #
+# jsex (v1.0.2) #
 
 ![why not jsex](ifyouknow.png)
 
