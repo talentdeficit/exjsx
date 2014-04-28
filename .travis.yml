@@ -5,5 +5,7 @@ before_install:
   - sudo apt-get install erlang
   - git clone https://github.com/elixir-lang/elixir
   - cd elixir && make && cd ..
-before_script: "export PATH=`pwd`/elixir/bin:$PATH"
-script: yes | mix deps.get && mix test
+  - git clone https://github.com/rebar/rebar
+  - cd rebar && git checkout 2.2.0 && ./bootstrap && cd ..
+before_script: "export PATH=`pwd`/elixir/bin:`pwd`/rebar:$PATH"
+script: mix deps.get && mix test
