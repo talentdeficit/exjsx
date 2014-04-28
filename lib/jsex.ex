@@ -113,15 +113,15 @@ defimpl JSEX.Encoder, for: List do
     case first do
       {key, _} ->
         if is_atom(key) && function_exported?(key, :__record__, 1) do
-          [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
+          [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(for term <- tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
         else
-          [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
+          [:start_object] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_object]
         end
-      _ -> [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
+      _ -> [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(for term <- tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
     end
   end
   def json(list) do
-    [:start_array] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_array]
+    [:start_array] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_array]
   end
 end
 
