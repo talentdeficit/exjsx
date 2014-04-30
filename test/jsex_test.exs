@@ -246,7 +246,7 @@ defmodule JSEX.Tests.Is do
   test "is_term? [{}]", do: assert(JSEX.is_term?([{}]) == true)
   test "is_term? %{}", do: assert(JSEX.is_term?(%{}) == true)
   test "is_term? {}", do: assert(JSEX.is_term?({}) == false)
-  test "is_term? self", do: assert(JSEX.is_term?(:error) == false)
+  test "is_term? self", do: assert(JSEX.is_term?(self()) == false)
 end
 
 defmodule JSEX.Tests.Errors do
