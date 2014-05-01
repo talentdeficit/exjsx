@@ -196,46 +196,6 @@ defmodule JSEX.Tests.Encode do
   end
 end
 
-defmodule JSEX.Tests.Records do
-  use ExUnit.Case
-
-  defrecord SimpleRecord, name: nil, rank: nil
-  defrecord SimplerRecord, name: nil
-
-  test "encode a simple record" do
-    assert(JSEX.encode(SimpleRecord.new(name: "Walder Frey", rank: "Lord"))
-      == { :ok, "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}" })
-  end
-
-  test "encode a list of simple records" do
-    assert(JSEX.encode([SimpleRecord.new(name: "Walder Frey", rank: "Lord")])
-      == { :ok, "[{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}]" })
-  end
-
-  test "encode a simpler record" do
-    assert(JSEX.encode(SimplerRecord.new(name: "Walder Frey"))
-      == { :ok, "{\"name\":\"Walder Frey\"}" })
-  end
-
-  test "encode a list of simpler record" do
-    assert(JSEX.encode([SimplerRecord.new(name: "Walder Frey")])
-      == { :ok, "[{\"name\":\"Walder Frey\"}]" })
-  end
-
-  defrecord BasicRecord, name: nil, rank: nil
-
-  defimpl JSEX.Encoder, for: BasicRecord do
-    def json(record) do
-      [:start_object, "name", record.rank <> " " <> record.name, :end_object]
-    end
-  end
-
-  test "encode a basic record with a protocol defined" do
-    assert(JSEX.encode(BasicRecord.new(name: "Walder Frey", rank: "Lord"))
-      == { :ok, "{\"name\":\"Lord Walder Frey\"}" })
-  end
-end
-
 defmodule JSEX.Tests.Is do
   use ExUnit.Case
 

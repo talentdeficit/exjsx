@@ -154,39 +154,22 @@ end
 defimpl JSEX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
-  def json([first|tail] = list) when is_tuple(first) do
-    case first do
-      {key, _} ->
-        if is_atom(key) && function_exported?(key, :__record__, 1) do
-          [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(for term <- tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
-        else
-          [:start_object] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_object]
-        end
-      _ -> [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(for term <- tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
-    end
+  def json([{ key, _ }|_] = list) do
+    [:start_object] ++
+      flatten(for term <- unzip(list), do: JSEX.Encoder.json(term)) ++
+    [:end_object]
   end
   def json(list) do
     [:start_array] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_array]
   end
-end
-
-defimpl JSEX.Encoder, for: Tuple do
-  def json(record) when is_record(record) do
-    if function_exported?(elem(record, 0), :__record__, 1) do
-      JSEX.Encoder.json Enum.map(
-        record.__record__(:fields),
-        fn({ key, _ }) -> { key, elem(record, record.__record__(:index, key)) } end
-      )
-    else
-      # Tuple is not actually a record
-      { key, value } = record
-      [{ :key, key }] ++ JSEX.Encoder.json(value)
-    end
+  
+  def unzip(list), do: unzip(list, [])
+    
+  def unzip([], acc), do: Enum.reverse(acc)
+  def unzip([{ key, value }|rest], acc)
+  when is_binary(key) or is_atom(key) or is_integer(key) do
+    unzip(rest, [value, key] ++ acc)
   end
-  def json({ key, value }) when is_bitstring(key) or is_atom(key) do
-    [{ :key, key }] ++ JSEX.Encoder.json(value)
-  end
-  def json(_), do: raise ArgumentError
 end
 
 defimpl JSEX.Encoder, for: HashDict do
@@ -204,6 +187,6 @@ defimpl JSEX.Encoder, for: [Number, Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSEX.Encoder, for: [PID, Any] do
+defimpl JSEX.Encoder, for: [Tuple, PID, Any] do
   def json(_), do: raise ArgumentError
 end
