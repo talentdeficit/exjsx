@@ -140,13 +140,14 @@ defmodule JSEX.Decoder do
 end
 
 defprotocol JSEX.Encoder do
+  @fallback_to_any true
   def json(term)
 end
 
 defimpl JSEX.Encoder, for: Map do
   def json(map) do
     [:start_object] ++ flatten(for key <- Map.keys(map) do
-      JSEX.Encoder.json(key) ++ JSEX.Encoder.json(map[key])
+      JSEX.Encoder.json(key) ++ JSEX.Encoder.json(Map.get(map, key))
     end) ++ [:end_object]
   end
 end
@@ -188,5 +189,6 @@ defimpl JSEX.Encoder, for: [Number, Integer, Float, BitString] do
 end
 
 defimpl JSEX.Encoder, for: [Tuple, PID, Any] do
+  def json(map) when is_map(map), do: JSEX.Encoder.Map.json(Map.delete(map, :__struct__))
   def json(_), do: raise ArgumentError
 end
