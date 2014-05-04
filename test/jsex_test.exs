@@ -196,6 +196,36 @@ defmodule JSEX.Tests.Encode do
   end
 end
 
+defmodule User do
+  defstruct name: "jose", age: 27
+end
+
+defmodule FancyUser do
+  defstruct name: "jose", age: 27
+end
+
+defimpl JSEX.Encoder, for: FancyUser do
+  def json(user) do
+    [Map.get(user, :name) <> " is " <> to_string(Map.get(user, :age)) <> " years old!"]
+  end
+end
+
+defmodule JSEX.Tests.Structs do
+  use ExUnit.Case
+
+  test "encode a simple struct" do
+    assert(JSEX.encode(%User{}) == { :ok, "{\"age\":27,\"name\":\"jose\"}" })
+  end
+
+  test "encode a list of simple records" do
+    assert(JSEX.encode([%User{}]) == { :ok, "[{\"age\":27,\"name\":\"jose\"}]" })
+  end
+
+  test "encode a struct with a protocol defined" do
+    assert(JSEX.encode(%FancyUser{}) == { :ok, "\"jose is 27 years old!\"" })
+  end
+end
+
 defmodule JSEX.Tests.Is do
   use ExUnit.Case
 
