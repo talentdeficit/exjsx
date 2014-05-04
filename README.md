@@ -1,4 +1,4 @@
-# jsex (v1.0.2) #
+# jsex (v2.0) #
 
 ![why not jsex](ifyouknow.png)
 
@@ -13,12 +13,6 @@ testing provided by [travis-ci][travis]
 jsex is released under the terms of the [MIT][MIT] license
 
 copyright 2013 alisdair sullivan
-
-
-## feedback requested ##
-
-if you're a user of jsex and if you have a chance could you check out this issue about supporting maps
-and leave your feedback? thanks
 
 
 ## index ##
@@ -74,18 +68,20 @@ $ mix test
 
 ```iex
 iex> JSEX.decode "{\"library\": \"jsx\", \"awesome\": true}"
-{:ok,[{"library", "jsx"}, {"awesome", true}]}
+{:ok, %{"awesome" => true, "library" => "jsx"}}
 iex> JSEX.decode "[\"a\",\"list\",\"of\",\"words\"]"
-{:ok,["a","list","of","words"]}
+{:ok, ["a", "list", "of", "words"]}
 ```
 
 #### convert an elixir dict into a json string ####
 
 ```iex
+iex> JSEX.encode %{"library" => "jsx", "awesome" => true}
+{:ok, "{\"awesome\":true,\"library\":\"jsx\"}"}
 iex> JSEX.encode [library: "jsx", awesome: true]
-{:ok,"{\"library\":\"jsx\",\"awesome\":true}"}
+{:ok, "{\"library\":\"jsx\",\"awesome\":true}"}
 iex> JSEX.encode ["a","list","of","words"]
-{:ok,"[\"a\",\"list\",\"of\",\"words\"]"}
+{:ok, "[\"a\",\"list\",\"of\",\"words\"]"}
 ```
 
 #### check if a binary or a term is valid json ####
@@ -93,11 +89,11 @@ iex> JSEX.encode ["a","list","of","words"]
 ```iex
 iex> JSEX.is_json? "[\"this is json\"]"
 true
-iex> JSEX.is_json? [\"this is not\"]
+iex> JSEX.is_json? ["this is not"]
 false
 iex> JSEX.is_term? ["this is a term"]
 true
-iex> JSEX.is_term? [:this, :is, :not]
+iex> JSEX.is_term? self()
 false
 ```
 
@@ -118,7 +114,7 @@ iex> JSEX.minify "{
 
 ```iex
 iex> JSEX.prettify "{\"a list\":[1,2,3]}"
-{:ok,"{
+{:ok, "{
   \"a list\": [
     1,
     2,
@@ -140,19 +136,17 @@ all json produced and consumed by jsex should be `utf8` encoded text or a
 reasonable approximation thereof. ascii works too, but anything beyond that 
 i'm not going to make any promises. **especially** not latin1
 
-the [spec][rfc4627] thinks json values must be wrapped in a json array or 
-object but everyone else disagrees so jsex allows naked json values by default.
 
 #### json &lt;-> elixir mapping ####
 
 **json**                        | **elixir**
 --------------------------------|--------------------------------
-`number`                        | `Number`
+`number`                        | `Float` and `Integer`
 `string`                        | `BitString`
 `true` and `false`              | `true` and `false`
 `null`                          | `nil`
 `array`                         | `List`
-`object`                        | `[{}]`, `Dict` and `Record`
+`object`                        | `%{}`, `[{}]`, `Dict` and `Struct`
 
 #### numbers ####
 
@@ -199,6 +193,8 @@ strings for conformance. noncharacters (like `u+ffff`)  are allowed in elixir
 utf8 encoded binaries, but not in strings passed to the encoder (although,
 again, see [options](#options))
 
+when encoding, atoms are first converted to BitStrings
+
 this implementation performs no normalization on strings beyond that 
 detailed here. be careful when comparing strings as equivalent strings 
 may have different `utf8` encodings
@@ -215,9 +211,9 @@ in this section
 
 #### objects ####
 
-json objects are represented by elixir dicts. keys are atoms or bitstrings and
-values are valid json values. records are serialized to objects automagically
-but there is currently no way to perform the reverse. stay tuned tho
+json objects are represented by elixir maps. keys are atoms, bitstrings or integers
+and values are valid json values. structs, keylists and dicts are serialized to objects
+automagically but there is currently no way to perform the reverse. stay tuned tho
 
 
 ## frequently made accusations ##
@@ -227,12 +223,14 @@ but there is currently no way to perform the reverse. stay tuned tho
 so you have this record:
 
 ```elixir
-defrecord Character, name: nil, rank: nil
+defmodule Character do
+  defstruct name: nil, rank: nil
+end
 ```
 
 ```iex
-iex> JSEX.encode Character.new(name: "Walder Frey", rank: "Lord")
-{:ok,"{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}"}
+iex> JSEX.encode %Character{name: "Walder Frey", rank: "Lord"}
+{:ok, "{\"name\":\"Walder Frey\",\"rank\":\"Lord\"}"}
 ```
 
 but you don't like that encoding. ok. do this:
@@ -241,15 +239,16 @@ but you don't like that encoding. ok. do this:
 defimpl JSEX.Encoder, for: Character do
   def json(record) do
     [:start_object, "name", record.rank <> " " <> record.name, :end_object]
+  end
 end
 ```
 
 ```iex
 iex> JSEX.encode Character.new(name: "Walder Frey", rank: "Lord")
-{:ok,"{\"name\":\"Lord Walder Frey\"}"}
+{:ok, "{\"name\":\"Lord Walder Frey\"}"}
 ```
 
-along with the [jsx][jsx] internal format you can also generate you own json
+apart from the [jsx][jsx] internal format you can also generate you own json
 and pass it to the encoder with `[{:raw, "{\"name\": \"Lord Walder Frey\"}"}]`
 
 someone should write a macro that does this and make a pull request
@@ -261,27 +260,19 @@ no i didn't. they are [jsx][jsx] only for now. stay tuned tho
 
 ## options ##
 
-jsex functions all take a common set of options. not all flags have meaning 
+**jsex** functions all take a common set of options. not all flags have meaning 
 in all contexts, but they are always valid options. functions may have 
 additional options beyond these. see 
 [individual function documentation](#exports) for details
 
-#### `:escaped_forward_slashes` ####
+#### `escaped_forward_slashes` ####
 
 json strings are escaped according to the json spec. this means forward 
 slashes (solidus) are only escaped when this flag is present. otherwise they 
 are left unescaped. you may want to use this if you are embedding json 
 directly into a html or xml document
 
-#### `:unescaped_jsonp` ####
-
-javascript interpreters treat the codepoints `u+2028` and `u+2029` as 
-significant whitespace. json strings that contain either of these codepoints 
-will be parsed incorrectly by some javascript interpreters. by default, 
-these codepoints are escaped (to `\u2028` and `\u2029`, respectively) to 
-retain compatibility. this option simply removes that escaping
-
-#### `:escaped_strings` ####
+#### `escaped_strings` ####
 
 by default both the encoder and decoder return strings as utf8 binaries 
 appropriate for use in elixir. escape sequences that were present in decoded 
@@ -289,18 +280,25 @@ terms are converted into the appropriate codepoint while encoded terms are
 unaltered. this flag escapes strings as if for output in json, removing 
 control codes and problematic codepoints and replacing them with the 
 appropriate escapes
+    
+#### `unescaped_jsonp` ####
 
-#### `:dirty_strings` ####
+javascript interpreters treat the codepoints `u+2028` and `u+2029` as 
+significant whitespace. json strings that contain either of these codepoints 
+will be parsed incorrectly by some javascript interpreters. by default, 
+these codepoints are escaped (to `\u2028` and `\u2029`, respectively) to 
+retain compatibility. this option simply removes that escaping
+
+#### `dirty_strings` ####
 
 json escaping is lossy; it mutates the json string and repeated application 
 can result in unwanted behaviour. if your strings are already escaped (or 
 you'd like to force invalid strings into "json" you monster) use this flag 
 to bypass escaping. this can also be used to read in **really** invalid json 
-strings. everything but escaped quotes are passed as is to the resulting 
-string term. note that this overrides `:ignored_bad_escapes`, 
-`:unescaped_jsonp` and `:escaped_strings`
+strings. everything between unescaped quotes are passed as is to the resulting 
+string term. note that this takes precedence over any other options
 
-#### `:strict` ####
+#### `strict` ####
 
 as mentioned [earlier](#description), **jsex** is pragmatic. if you're more of a
 json purist or you're really into bdsm stricter adherence to the spec is
@@ -308,22 +306,24 @@ possible. the following restrictions are available
 
 * `:comments`
 
-    comments are disabled and result in a `:badarg` error
+    comments are disabled and result in `ArgumentError` or `{:error, :badarg}`
 
 * `:utf8`
 
-    invalid codepoints and malformed unicode result in `:badarg` errors
+    invalid codepoints and malformed unicode result in `ArgumentError`  or
+    `{:error, :badarg}`
 
 * `:single_quotes`
 
     only keys and strings delimited by double quotes (`u+0022`) are allowed. the
-    single quote (`u+0027`) results in a `:badarg` error
+    single quote (`u+0027`) results in `ArgumentError`  or `{:error, :badarg}`
 
 * `:escapes`
 
-    escape sequences not adhering to the json spec result in a `:badarg` error
+    escape sequences not adhering to the json spec result in `ArgumentError`  or
+    `{:error, :badarg}`
 
-any combination of these can be passed to **jsx** by using `{:strict, [strict_option()]}`.
+any combination of these can be passed to **jsex** by using `{:strict, [strict_option()]}`.
 `:strict` is equivalent to `{:strict, [:comments, :bad_utf8, :single_quotes, :escapes]}` 
 
 
@@ -353,11 +353,11 @@ standard jsex [options](#options) plus the following
 iex> JSEX.decode "[true, false, null]"
 {:ok,[true,false,nil]}
 iex> JSEX.decode("{\"key\": true}", [{:labels, :binary}])
-{:ok,[{"key",true}]}
+{:ok, %{"key" => true}}
 iex> JSEX.decode("{\"key\": true}", [{:labels, :atom}])
-{:ok,[key: true]}
+{:ok, %{key: true}}
 iex> JSEX.decode [:a, :b, :c]
-{:error,:badarg}
+{:error, :badarg}
 ```
 
 #### `decode!(json, opts)` ####
@@ -371,7 +371,7 @@ see [decode](#decodejson-opts) for opts
 
 ```iex
 iex> JSEX.decode! "[true, false, null]"
-[true,false,nil]
+[true, false, nil]
 iex> JSEX.decode! [:a, :b, :c]
 ** (ArgumentError) argument error
 ```
@@ -398,21 +398,19 @@ standard jsex [options](#options) plus the following
 
 ```iex
 iex> JSEX.encode [true, false, nil]
-{:ok,"[true,false,null]"}
-iex> JSEX.encode([a: 1, b: 2, c: 3], [{:space, 2}, :indent])
+{:ok, "[true,false,null]"}
+iex> JSEX.encode(%{:a => 1, :b => 2, :c => 3}, [{:space, 2}, :indent])
 {:ok,"{
  \"a\":  1,
  \"b\":  2,
  \"c\":  3
 }"}
-iex> JSEX.encode([a: 1, b: 2, c: 3], [:space, {:indent, 4}])
+iex> JSEX.encode(%{:a => 1, :b => 2, :c => 3}, [:space, {:indent, 4}])
 {:ok,"{
     \"a\": 1,
     \"b\": 2,
     \"c\": 3
 }"}
-iex> JSEX.encode [:a, :b, :c]
-{:error,:badarg}
 ```
 
 #### `encode!(json, opts)` ####
@@ -426,8 +424,8 @@ see [encode](#encodejson-opts) for opts
 
 ```iex
 iex> JSEX.encode! [true, false, null]
-[true,false,nil]
-iex> JSEX.encode! [:a, :b, :c]
+[true, false, nil]
+iex> JSEX.encode! [self()]
 ** (ArgumentError) argument error
 ```
 
@@ -441,22 +439,22 @@ see [encode](#encodejson-opts) for opts
 ##### examples #####
 
 ```iex
-iex> JSEX.format "[ true, false, null ]"
-{:ok,"[true,false,null]"}
-iex> JSEX.format("[ true, false, null ]", [space: 2]
-{:ok,"[true,  false,  null]"}
-iex> JSEX.format("[ true, false, null ]", [space: 4]
-{:ok,"[true,    false,    null]"}
+iex> JSEX.format "[true, false, null]"
+{:ok, "[true,false,null]"}
+iex> JSEX.format("[true, false, null]", [space: 2])
+{:ok, "[true,  false,  null]"}
+iex> JSEX.format("[true, false, null]", [space: 4])
+{:ok, "[true,    false,    null]"}
 iex> JSEX.format "{\"foo\":true,\"bar\":false}"
-{:ok,"{\"foo\":true,\"bar\":false}"}
+{:ok, "{\"foo\":true,\"bar\":false}"}
 iex> JSEX.format("{\"foo\":true,\"bar\":false}", [:space])
-{:ok,"{\"foo\": true,\"bar\": false}"}
+{:ok, "{\"foo\": true,\"bar\": false}"}
 iex> JSEX.format("{\"foo\":true,\"bar\":false}", [space: 2, indent: 4])
-{:ok,"{
+{:ok, "{
     \"foo\":  true,
     \"bar\":  false
 }"}
-iex> JSEX.format [:a, :b, :c]
+iex> JSEX.format [self()]
 {:error,:badarg}
 ```
 
@@ -470,14 +468,14 @@ see [encode](#encodejson-opts) for opts
 ##### examples #####
 
 ```iex
-iex> JSEX.format! "[ true, false, null ]"
+iex> JSEX.format! "[true, false, null]"
 "[true,false,null]"
 iex> JSEX.format!("{\"foo\":true,\"bar\":false}", [space: 2, indent: 4])
 "{
     \"foo\":  true,
     \"bar\":  false
 }"
-iex> JSEX.format! [:a, :b, :c]
+iex> JSEX.format! [self()]
 ** (ArgumentError) argument error
 ```
 
@@ -488,9 +486,9 @@ iex> JSEX.format! [:a, :b, :c]
 ##### examples #####
 
 ```iex
-iex> JSEX.minify "[ true, false, null ]"
+iex> JSEX.minify "[true, false, null]"
 {:ok,"[true,false,null]"}
-iex> JSEX.minify [:a, :b, :c]
+iex> JSEX.minify [self()]
 {:error,:badarg}
 ```
 
@@ -501,9 +499,9 @@ iex> JSEX.minify [:a, :b, :c]
 ##### examples #####
 
 ```iex
-iex> JSEX.minify! "[ true, false, null ]"
+iex> JSEX.minify! "[true, false, null]"
 "[true,false,null]"
-iex> JSEX.minify [:a, :b, :c]
+iex> JSEX.minify [self()]
 ** (ArgumentError) argument error
 ```
 
@@ -514,13 +512,13 @@ iex> JSEX.minify [:a, :b, :c]
 ##### examples #####
 
 ```iex
-iex> JSEX.prettify "[ true, false, null ]"
+iex> JSEX.prettify "[true, false, null]"
 {:ok,"[
   true,
   false,
   null
 ]"}
-iex> JSEX.prettify [:a, :b, :c]
+iex> JSEX.prettify [self()]
 {:error,:badarg}
 ```
 
@@ -531,13 +529,13 @@ iex> JSEX.prettify [:a, :b, :c]
 ##### examples #####
 
 ```iex
-iex> JSEX.prettify! "[ true, false, null ]"
+iex> JSEX.prettify! "[true, false, null]"
 "[
   true,
   false,
   null
 ]"
-iex> JSEX.prettify! [:a, :b, :c]
+iex> JSEX.prettify! [self()]
 ** (ArgumentError) argument error
 ```
 
@@ -553,9 +551,9 @@ what exactly constitutes valid json may be [altered](#options)
 ##### examples #####
 
 ```iex
-iex> JSEX.is_json? "[ true, false, null ]"
+iex> JSEX.is_json? "[true, false, null]"
 true
-iex> JSEX.is_json? [:a, :b, :c]
+iex> JSEX.is_json? [self()]
 false
 ```
 
@@ -572,9 +570,9 @@ what exactly constitutes valid json may be [altered](#options)
 ##### examples #####
 
 ```iex
-iex> JSEX.is_term? [ true, false, nil ]
+iex> JSEX.is_term? [true, false, nil]
 true
-iex> JSEX.is_term? [:a, :b, :c]
+iex> JSEX.is_term? [self()]
 false
 ```
 
