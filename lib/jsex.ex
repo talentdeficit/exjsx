@@ -184,11 +184,11 @@ defimpl JSEX.Encoder, for: Atom do
   def json(atom), do: [:erlang.atom_to_binary(atom, :utf8)]
 end
 
-defimpl JSEX.Encoder, for: [Number, Integer, Float, BitString] do
+defimpl JSEX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSEX.Encoder, for: [Tuple, PID, Any] do
+defimpl JSEX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
   def json(map) when is_map(map), do: JSEX.Encoder.Map.json(Map.delete(map, :__struct__))
   def json(_), do: raise ArgumentError
 end
