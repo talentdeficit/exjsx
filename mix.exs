@@ -3,7 +3,7 @@ defmodule JSEX.Mixfile do
 
   def project do
     [ app: :jsex,
-      version: "1.0.2",
+      version: "2.0.0",
       elixir: ">= 0.13.0",
       build_per_environment: false,
       deps: deps
@@ -16,6 +16,6 @@ defmodule JSEX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, github: "talentdeficit/jsx", tag: "v2.0.1"}]
+    [{:jsx, ">= 2.0.1", github: "talentdeficit/jsx"}]
   end
 end
