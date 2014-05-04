@@ -217,7 +217,7 @@ defmodule JSEX.Tests.Structs do
     assert(JSEX.encode(%User{}) == { :ok, "{\"age\":27,\"name\":\"jose\"}" })
   end
 
-  test "encode a list of simple records" do
+  test "encode a list of simple structs" do
     assert(JSEX.encode([%User{}]) == { :ok, "[{\"age\":27,\"name\":\"jose\"}]" })
   end
 
