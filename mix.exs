@@ -30,7 +30,7 @@ defmodule JSEX.Mixfile do
   
   defp package do
     [
-      files: ["lib", "test", "ifyouknow.png", "LICENSE", "mix.exs", "README.md"],
+      files: ["lib", "ifyouknow.png", "LICENSE", "mix.exs", "README.md"],
       contributors: ["alisdair sullivan"],
       licenses: ["MIT"],
       links: [{"github", "https://github.com/talentdeficit/jsex"}]
