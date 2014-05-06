@@ -1,3 +1,5 @@
+Code.ensure_loaded?(Hex) and Hex.start
+
 defmodule JSEX.Mixfile do
   use Mix.Project
 
@@ -5,7 +7,8 @@ defmodule JSEX.Mixfile do
     [ app: :jsex,
       version: "2.0.0",
       elixir: ">= 0.13.0",
-      build_per_environment: false,
+      description: description,
+      package: package,
       deps: deps
     ]
   end
@@ -16,6 +19,21 @@ defmodule JSEX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, ">= 2.0.1", github: "talentdeficit/jsx"}]
+    [{:jsx, "~> 2.0"}]
+  end
+  
+  defp description do
+    """
+    json for elixir
+    """
+  end
+  
+  defp package do
+    [
+      files: ["lib", "test", "ifyouknow.png", "LICENSE", "mix.exs", "README.md"],
+      contributors: ["alisdair sullivan"],
+      licenses: ["MIT"],
+      links: [{"github", "https://github.com/talentdeficit/jsex"}]
+    ]
   end
 end
