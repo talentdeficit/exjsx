@@ -89,72 +89,106 @@ defmodule JSEX.Decoder do
     :jsx_to_term.init(opts)
   end
 
-  def handle_event({ :literal, :null }, config) do
-    :jsx_to_term.insert(:nil, config)
-  end
+  def handle_event(:end_json, state), do: get_value(state)
+  def handle_event(:start_object, state), do: start_object(state)
+  def handle_event(:end_object, state), do: finish(state)
+  def handle_event(:start_array, state), do: start_array(state)
+  def handle_event(:end_array, state), do: finish(state)
+  def handle_event({ :key, key }, { _, config } = state), do: insert(format_key(key, config), state)
+  def handle_event({ :literal, :null }, state), do: insert(:nil, state)
+  def handle_event({ _, event }, state), do: insert(event, state)
 
-  def handle_event(event, config) do
-    :jsx_to_term.handle_event(event, config)
+  defp format_key(key, { _, :binary }), do: key
+  defp format_key(key, { _, :atom }), do: :erlang.binary_to_atom(key, :utf8)
+  defp format_key(key, { _, :existing_atom }), do: :erlang.binary_to_existing_atom(key, :utf8)
+  defp format_key(key, { _, :attempt_atom }) do
+    :erlang.binary_to_existing_atom(key, :utf8)
+  rescue
+    ArgumentError -> key
   end
+  
+  defp start_object({ stack, config }), do: { [{ :object, %{} }] ++ stack, config }
+  
+  defp start_array({ stack, config }), do: { [{ :array, [] }] ++ stack, config }
+    
+  defp finish({ [{ :object, emptyMap }], config }) when is_map(emptyMap) and map_size(emptyMap) < 1 do
+    { %{}, config }
+  end
+  defp finish({ [{ :object, emptyMap }|rest], config }) when is_map(emptyMap) and map_size(emptyMap) < 1 do
+    insert(%{}, { rest, config })
+  end
+  defp finish({ [{ :object, pairs }], config }), do: { pairs, config }
+  defp finish({ [{ :object, pairs}|rest], config }), do: insert(pairs, { rest, config })
+  defp finish({ [{ :array, values }], config }), do: { Enum.reverse(values), config }
+  defp finish({ [{ :array, values}|rest], config}), do: insert(Enum.reverse(values), { rest, config })
+  defp finish(_), do: raise ArgumentError
+
+  defp insert(value, { [], config }), do: { value, config }
+  defp insert(key, { [{ :object, pairs }|rest], config }) do
+    { [{ :object, key, pairs }] ++ rest, config }
+  end
+  defp insert(value, { [{ :object, key, pairs }|rest], config }) do
+    { [{ :object, Map.put(pairs, key, value) }] ++ rest, config }
+  end
+  defp insert(value, { [{ :array, values}|rest], config }) do
+    { [{ :array, [value] ++ values}] ++ rest, config }
+  end
+  defp insert(_, _), do: raise ArgumentError
+
+  defp get_value({ value, _config }), do: value
+  defp get_value(_), do: raise ArgumentError
 end
 
 defprotocol JSEX.Encoder do
+  @fallback_to_any true
   def json(term)
+end
+
+defimpl JSEX.Encoder, for: Map do
+  def json(map) do
+    [:start_object] ++ flatten(for key <- Map.keys(map) do
+      JSEX.Encoder.json(key) ++ JSEX.Encoder.json(Map.get(map, key))
+    end) ++ [:end_object]
+  end
+end
+
+defimpl JSEX.Encoder, for: List do
+  def json([]), do: [:start_array, :end_array]
+  def json([{}]), do: [:start_object, :end_object]
+  def json([{ _, _ }|_] = list) do
+    [:start_object] ++
+      flatten(for term <- unzip(list), do: JSEX.Encoder.json(term)) ++
+    [:end_object]
+  end
+  def json(list) do
+    [:start_array] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_array]
+  end
+  
+  defp unzip(list), do: unzip(list, [])
+    
+  defp unzip([], acc), do: Enum.reverse(acc)
+  defp unzip([{ key, value }|rest], acc)
+  when is_binary(key) or is_atom(key) or is_integer(key) do
+    unzip(rest, [value, key] ++ acc)
+  end
 end
 
 defimpl JSEX.Encoder, for: HashDict do
   def json(dict), do: JSEX.Encoder.json(HashDict.to_list(dict))
 end
 
-defimpl JSEX.Encoder, for: List do
-  def json([]), do: [:start_array, :end_array]
-  def json([{}]), do: [:start_object, :end_object]
-  def json([first|tail] = list) when is_tuple(first) do
-    case first do
-      {key, _} ->
-        if is_atom(key) && function_exported?(key, :__record__, 1) do
-          [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
-        else
-          [:start_object] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_object]
-        end
-      _ -> [:start_array] ++ JSEX.Encoder.json(first) ++ flatten(lc term inlist tail, do: JSEX.Encoder.json(term)) ++ [:end_array]
-    end
-  end
-  def json(list) do
-    [:start_array] ++ flatten(lc term inlist list, do: JSEX.Encoder.json(term)) ++ [:end_array]
-  end
-end
-
-defimpl JSEX.Encoder, for: Tuple do
-  def json(record) when is_record(record) do
-    if function_exported?(elem(record, 0), :__record__, 1) do
-      JSEX.Encoder.json Enum.map(
-        record.__record__(:fields),
-        fn({ key, _ }) -> { key, elem(record, record.__record__(:index, key)) } end
-      )
-    else
-      # Tuple is not actually a record
-      { key, value } = record
-      [{ :key, key }] ++ JSEX.Encoder.json(value)
-    end
-  end
-  def json({ key, value }) when is_bitstring(key) or is_atom(key) do
-    [{ :key, key }] ++ JSEX.Encoder.json(value)
-  end
-  def json(_), do: raise ArgumentError
-end
-
 defimpl JSEX.Encoder, for: Atom do
   def json(nil), do: [:null]
   def json(true), do: [true]
   def json(false), do: [false]
-  def json(_), do: raise ArgumentError
+  def json(atom), do: [:erlang.atom_to_binary(atom, :utf8)]
 end
 
-defimpl JSEX.Encoder, for: [Number, Integer, Float, BitString] do
+defimpl JSEX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSEX.Encoder, for: [PID, Any] do
+defimpl JSEX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
+  def json(map) when is_map(map), do: JSEX.Encoder.Map.json(Map.delete(map, :__struct__))
   def json(_), do: raise ArgumentError
 end
