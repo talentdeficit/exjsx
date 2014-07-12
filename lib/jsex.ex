@@ -147,8 +147,17 @@ end
 defimpl JSEX.Encoder, for: Map do
   def json(map) do
     [:start_object] ++ flatten(for key <- Map.keys(map) do
-      JSEX.Encoder.json(key) ++ JSEX.Encoder.json(Map.get(map, key))
+      [encode_key(key)] ++ JSEX.Encoder.json(Map.get(map, key))
     end) ++ [:end_object]
+  end
+  
+  defp encode_key(key)
+  when is_binary(key) or is_integer(key) do
+    key
+  end
+  defp encode_key(key)
+  when is_atom(key) do
+    :erlang.atom_to_binary(key, :utf8)
   end
 end
 
@@ -156,20 +165,21 @@ defimpl JSEX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([{ _, _ }|_] = list) do
-    [:start_object] ++
-      flatten(for term <- unzip(list), do: JSEX.Encoder.json(term)) ++
-    [:end_object]
+    [:start_object] ++ flatten(for {key, value} <- list do
+      [encode_key(key)] ++ JSEX.Encoder.json(value)
+    end) ++ [:end_object]
   end
   def json(list) do
     [:start_array] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_array]
   end
   
-  defp unzip(list), do: unzip(list, [])
-    
-  defp unzip([], acc), do: Enum.reverse(acc)
-  defp unzip([{ key, value }|rest], acc)
-  when is_binary(key) or is_atom(key) or is_integer(key) do
-    unzip(rest, [value, key] ++ acc)
+  defp encode_key(key)
+  when is_binary(key) or is_integer(key) do
+    key
+  end
+  defp encode_key(key)
+  when is_atom(key) do
+    :erlang.atom_to_binary(key, :utf8)
   end
 end
 

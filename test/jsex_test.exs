@@ -194,6 +194,18 @@ defmodule JSEX.Tests.Encode do
   test "encode! compound object" do
     assert(JSEX.encode!(compoundobj(:ex)) == compoundobj(:json))
   end
+  
+  test "encode keylist with key `nil`" do
+    assert(JSEX.encode([nil: nil]) == { :ok, "{\"nil\":null}" })
+  end
+  
+  test "encode map with key `nil`" do
+    assert(JSEX.encode(%{ nil => nil }) == { :ok, "{\"nil\":null}" })
+  end
+  
+  test "encode HashDict with key `nil`" do
+    assert(JSEX.encode(Enum.into([nil: nil], HashDict.new)) == { :ok, "{\"nil\":null}" })
+  end
 end
 
 defmodule User do
