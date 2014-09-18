@@ -31,7 +31,15 @@ defmodule JSEX.Mixfile do
   defp package do
     [
       files: ["lib", "ifyouknow.png", "LICENSE", "mix.exs", "README.md"],
-      contributors: ["alisdair sullivan"],
+      contributors: [
+        "alisdair sullivan",
+        "devin torres",
+        "eduardo gurgel",
+        "d0rc",
+        "igor kapkov",
+        "parroty",
+        "yurii rashkovskii"
+      ],
       licenses: ["MIT"],
       links: [{"github", "https://github.com/talentdeficit/jsex"}]
     ]
