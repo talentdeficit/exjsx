@@ -1,11 +1,11 @@
 Code.ensure_loaded?(Hex) and Hex.start
 
-defmodule JSEX.Mixfile do
+defmodule JSX.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :jsex,
-      version: "2.1.0",
+    [ app: :exjsx,
+      version: "3.0.0",
       elixir: ">= 0.13.3",
       description: description,
       package: package,
@@ -30,7 +30,7 @@ defmodule JSEX.Mixfile do
   
   defp package do
     [
-      files: ["lib", "ifyouknow.png", "LICENSE", "mix.exs", "README.md"],
+      files: ["lib", "LICENSE", "mix.exs", "README.md"],
       contributors: [
         "alisdair sullivan",
         "devin torres",
@@ -41,7 +41,7 @@ defmodule JSEX.Mixfile do
         "yurii rashkovskii"
       ],
       licenses: ["MIT"],
-      links: [{"github", "https://github.com/talentdeficit/jsex"}]
+      links: %{"GitHub" => "https://github.com/talentdeficit/exjsx"}
     ]
   end
 end
