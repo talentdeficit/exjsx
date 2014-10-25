@@ -1,9 +1,9 @@
 import :lists, only: [flatten: 1]
 
-defmodule JSEX do
+defmodule JSX do
   def encode!(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    parser(:jsx_to_json, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_to_json, opts, parser_opts).(flatten(JSX.Encoder.json(term) ++ [:end_json]))
   end
 
   def encode(term, opts \\ []) do
@@ -14,7 +14,7 @@ defmodule JSEX do
 
   def decode!(json, opts \\ []) do
     decoder_opts = :jsx_config.extract_config(opts)
-    case decoder(JSEX.Decoder, opts, decoder_opts).(json) do
+    case decoder(JSX.Decoder, opts, decoder_opts).(json) do
       { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
@@ -66,7 +66,7 @@ defmodule JSEX do
 
   def is_term?(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts)
-    parser(:jsx_verify, opts, parser_opts).(flatten(JSEX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_verify, opts, parser_opts).(flatten(JSX.Encoder.json(term) ++ [:end_json]))
   rescue
     _ -> false
   end
@@ -84,7 +84,7 @@ defmodule JSEX do
   end
 end
 
-defmodule JSEX.Decoder do
+defmodule JSX.Decoder do
   def init(opts) do
     :jsx_to_term.init(opts)
   end
@@ -139,15 +139,15 @@ defmodule JSEX.Decoder do
   defp get_value(_), do: raise ArgumentError
 end
 
-defprotocol JSEX.Encoder do
+defprotocol JSX.Encoder do
   @fallback_to_any true
   def json(term)
 end
 
-defimpl JSEX.Encoder, for: Map do
+defimpl JSX.Encoder, for: Map do
   def json(map) do
     [:start_object] ++ flatten(for key <- Map.keys(map) do
-      [encode_key(key)] ++ JSEX.Encoder.json(Map.get(map, key))
+      [encode_key(key)] ++ JSX.Encoder.json(Map.get(map, key))
     end) ++ [:end_object]
   end
   
@@ -161,16 +161,16 @@ defimpl JSEX.Encoder, for: Map do
   end
 end
 
-defimpl JSEX.Encoder, for: List do
+defimpl JSX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([{ _, _ }|_] = list) do
     [:start_object] ++ flatten(for {key, value} <- list do
-      [encode_key(key)] ++ JSEX.Encoder.json(value)
+      [encode_key(key)] ++ JSX.Encoder.json(value)
     end) ++ [:end_object]
   end
   def json(list) do
-    [:start_array] ++ flatten(for term <- list, do: JSEX.Encoder.json(term)) ++ [:end_array]
+    [:start_array] ++ flatten(for term <- list, do: JSX.Encoder.json(term)) ++ [:end_array]
   end
   
   defp encode_key(key)
@@ -183,22 +183,22 @@ defimpl JSEX.Encoder, for: List do
   end
 end
 
-defimpl JSEX.Encoder, for: HashDict do
-  def json(dict), do: JSEX.Encoder.json(HashDict.to_list(dict))
+defimpl JSX.Encoder, for: HashDict do
+  def json(dict), do: JSX.Encoder.json(HashDict.to_list(dict))
 end
 
-defimpl JSEX.Encoder, for: Atom do
+defimpl JSX.Encoder, for: Atom do
   def json(nil), do: [:null]
   def json(true), do: [true]
   def json(false), do: [false]
   def json(atom), do: [:erlang.atom_to_binary(atom, :utf8)]
 end
 
-defimpl JSEX.Encoder, for: [Integer, Float, BitString] do
+defimpl JSX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSEX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
-  def json(map) when is_map(map), do: JSEX.Encoder.Map.json(Map.delete(map, :__struct__))
+defimpl JSX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
+  def json(map) when is_map(map), do: JSX.Encoder.Map.json(Map.delete(map, :__struct__))
   def json(_), do: raise ArgumentError
 end
