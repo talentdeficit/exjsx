@@ -30,7 +30,7 @@ copyright 2013 alisdair sullivan
   - [arrays](#arrays)
   - [objects](#objects)
 * [fma](#frequently-made-accusations)
-  - [your lib sucks and encodes my records wrong](#your-lib-sucks-and-encodes-my-records-wrong)
+  - [your lib sucks and encodes my structs wrong](#your-lib-sucks-and-encodes-my-structs-wrong)
   - [you forgot to document incompletes](#you-forgot-to-document-incompletes)
 * [options](#options)
   - [replaced bad utf8](#replaced_bad_utf8)
@@ -216,9 +216,9 @@ automagically but there is currently no way to perform the reverse. stay tuned t
 
 ## frequently made accusations ##
 
-#### your lib sucks and encodes my records wrong ####
+#### your lib sucks and encodes my structs wrong ####
 
-so you have this record:
+so you have this struct:
 
 ```elixir
 defmodule Character do
@@ -235,8 +235,8 @@ but you don't like that encoding. ok. do this:
 
 ```elixir
 defimpl JSX.Encoder, for: Character do
-  def json(record) do
-    [:start_object, "name", record.rank <> " " <> record.name, :end_object]
+  def json(struct) do
+    [:start_object, "name", struct.rank <> " " <> struct.name, :end_object]
   end
 end
 ```
