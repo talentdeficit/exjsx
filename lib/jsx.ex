@@ -98,10 +98,10 @@ defmodule JSX.Decoder do
   def handle_event({ :literal, :null }, state), do: insert(:nil, state)
   def handle_event({ _, event }, state), do: insert(event, state)
 
-  defp format_key(key, { _, :binary }), do: key
-  defp format_key(key, { _, :atom }), do: :erlang.binary_to_atom(key, :utf8)
-  defp format_key(key, { _, :existing_atom }), do: :erlang.binary_to_existing_atom(key, :utf8)
-  defp format_key(key, { _, :attempt_atom }) do
+  defp format_key(key, { _, :binary, _ }), do: key
+  defp format_key(key, { _, :atom, _ }), do: :erlang.binary_to_atom(key, :utf8)
+  defp format_key(key, { _, :existing_atom, _ }), do: :erlang.binary_to_existing_atom(key, :utf8)
+  defp format_key(key, { _, :attempt_atom, _ }) do
     :erlang.binary_to_existing_atom(key, :utf8)
   rescue
     ArgumentError -> key
