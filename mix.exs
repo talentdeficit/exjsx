@@ -1,11 +1,9 @@
-Code.ensure_loaded?(Hex) and Hex.start
-
 defmodule JSX.Mixfile do
   use Mix.Project
 
   def project do
     [ app: :exjsx,
-      version: "3.0.0",
+      version: "3.0.1",
       elixir: ">= 0.13.3",
       description: description,
       package: package,
@@ -19,7 +17,7 @@ defmodule JSX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, "~> 2.2.0"}]
+    [{:jsx, "~> 2.3.0"}]
   end
   
   defp description do
