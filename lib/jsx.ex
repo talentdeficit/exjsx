@@ -147,18 +147,10 @@ end
 defimpl JSX.Encoder, for: Map do
   def json(map) do
     [:start_object] ++ flatten(for key <- Map.keys(map) do
-      [encode_key(key)] ++ JSX.Encoder.json(Map.get(map, key))
+      [key] ++ JSX.Encoder.json(Map.get(map, key))
     end) ++ [:end_object]
   end
   
-  defp encode_key(key)
-  when is_binary(key) or is_integer(key) do
-    key
-  end
-  defp encode_key(key)
-  when is_atom(key) do
-    :erlang.atom_to_binary(key, :utf8)
-  end
 end
 
 defimpl JSX.Encoder, for: List do
@@ -166,20 +158,11 @@ defimpl JSX.Encoder, for: List do
   def json([{}]), do: [:start_object, :end_object]
   def json([{ _, _ }|_] = list) do
     [:start_object] ++ flatten(for {key, value} <- list do
-      [encode_key(key)] ++ JSX.Encoder.json(value)
+      [key] ++ JSX.Encoder.json(value)
     end) ++ [:end_object]
   end
   def json(list) do
     [:start_array] ++ flatten(for term <- list, do: JSX.Encoder.json(term)) ++ [:end_array]
-  end
-  
-  defp encode_key(key)
-  when is_binary(key) or is_integer(key) do
-    key
-  end
-  defp encode_key(key)
-  when is_atom(key) do
-    :erlang.atom_to_binary(key, :utf8)
   end
 end
 
