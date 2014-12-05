@@ -19,7 +19,7 @@ defmodule JSX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, "~> 2.1.1"}]
+    [{:jsx, "~> 2.3.0"}]
   end
   
   defp description do
