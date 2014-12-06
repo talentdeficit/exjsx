@@ -3,7 +3,7 @@ import :lists, only: [flatten: 1]
 defmodule JSX do
   def encode!(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
-    parser(:jsx_to_json, opts, parser_opts).(flatten(JSX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_to_json, opts, parser_opts).(JSX.Encoder.json(term) ++ [:end_json])
   end
 
   def encode(term, opts \\ []) do
@@ -146,24 +146,34 @@ end
 
 defimpl JSX.Encoder, for: Map do
   def json(map) do
-    [:start_object] ++ flatten(for key <- Map.keys(map) do
-      [key] ++ JSX.Encoder.json(Map.get(map, key))
-    end) ++ [:end_object]
+    [:start_object] ++ unpack(map, Map.keys(map))
   end
-  
+
+  defp unpack(map, [k|rest]) when is_integer(k) or is_binary(k) or is_atom(k) do
+    [k] ++ JSX.Encoder.json(Map.get(map, k)) ++ unpack(map, rest)
+  end
+  defp unpack(_, []), do: [:end_object]
 end
 
 defimpl JSX.Encoder, for: List do
   def json([]), do: [:start_array, :end_array]
   def json([{}]), do: [:start_object, :end_object]
   def json([{ _, _ }|_] = list) do
-    [:start_object] ++ flatten(for {key, value} <- list do
-      [key] ++ JSX.Encoder.json(value)
-    end) ++ [:end_object]
+    [:start_object] ++ unzip(list)
   end
   def json(list) do
-    [:start_array] ++ flatten(for term <- list, do: JSX.Encoder.json(term)) ++ [:end_array]
+    [:start_array] ++ unhitch(list)
   end
+
+  defp unzip([{k, v}|rest]) when is_integer(k) or is_binary(k) or is_atom(k) do
+    [k] ++ JSX.Encoder.json(v) ++ unzip(rest)
+  end
+  defp unzip([]), do: [:end_object]
+
+  defp unhitch([v|rest]) do
+    JSX.Encoder.json(v) ++ unhitch(rest)
+  end
+  defp unhitch([]), do: [:end_array]
 end
 
 defimpl JSX.Encoder, for: HashDict do
@@ -174,7 +184,7 @@ defimpl JSX.Encoder, for: Atom do
   def json(nil), do: [:null]
   def json(true), do: [true]
   def json(false), do: [false]
-  def json(atom), do: [:erlang.atom_to_binary(atom, :utf8)]
+  def json(atom), do: [atom]
 end
 
 defimpl JSX.Encoder, for: [Integer, Float, BitString] do

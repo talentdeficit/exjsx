@@ -1,4 +1,4 @@
-# exjsx (v3.0.0) #
+# exjsx (v3.0.1) #
 
 [json][json] for [elixir][elixir]
  
@@ -235,8 +235,13 @@ but you don't like that encoding. ok. do this:
 
 ```elixir
 defimpl JSX.Encoder, for: Character do
+<<<<<<< HEAD
   def json(struct) do
     [:start_object, "name", struct.rank <> " " <> struct.name, :end_object]
+=======
+  def json(record) do
+    [:start_object, "name", record.rank <> " " <> record.name, :end_object]
+>>>>>>> develop
   end
 end
 ```
