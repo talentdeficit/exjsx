@@ -3,7 +3,7 @@ defmodule JSX.Mixfile do
 
   def project do
     [ app: :exjsx,
-      version: "3.0.1",
+      version: "3.0.2",
       elixir: ">= 0.13.3",
       description: description,
       package: package,

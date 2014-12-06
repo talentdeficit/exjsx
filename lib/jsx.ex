@@ -1,5 +1,3 @@
-import :lists, only: [flatten: 1]
-
 defmodule JSX do
   def encode!(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts ++ [:escaped_strings])
@@ -66,7 +64,7 @@ defmodule JSX do
 
   def is_term?(term, opts \\ []) do
     parser_opts = :jsx_config.extract_config(opts)
-    parser(:jsx_verify, opts, parser_opts).(flatten(JSX.Encoder.json(term) ++ [:end_json]))
+    parser(:jsx_verify, opts, parser_opts).(JSX.Encoder.json(term) ++ [:end_json])
   rescue
     _ -> false
   end

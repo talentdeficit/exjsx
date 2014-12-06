@@ -1,4 +1,4 @@
-# exjsx (v3.0.1) #
+# exjsx (v3.0.2) #
 
 [json][json] for [elixir][elixir]
  
