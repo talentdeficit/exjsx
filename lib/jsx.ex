@@ -12,7 +12,7 @@ defmodule JSX do
 
   def decode!(json, opts \\ []) do
     decoder_opts = :jsx_config.extract_config(opts)
-    case decoder(JSX.Decoder, opts, decoder_opts).(json) do
+    case decoder(JSX.Decoder, opts ++ [:return_maps], decoder_opts).(json) do
       { :incomplete, _ } -> raise ArgumentError
       result -> result
     end
@@ -87,54 +87,8 @@ defmodule JSX.Decoder do
     :jsx_to_term.init(opts)
   end
 
-  def handle_event(:end_json, state), do: get_value(state)
-  def handle_event(:start_object, state), do: start_object(state)
-  def handle_event(:end_object, state), do: finish(state)
-  def handle_event(:start_array, state), do: start_array(state)
-  def handle_event(:end_array, state), do: finish(state)
-  def handle_event({ :key, key }, { _, config } = state), do: insert(format_key(key, config), state)
-  def handle_event({ :literal, :null }, state), do: insert(:nil, state)
-  def handle_event({ _, event }, state), do: insert(event, state)
-
-  defp format_key(key, { _, :binary, _ }), do: key
-  defp format_key(key, { _, :atom, _ }), do: :erlang.binary_to_atom(key, :utf8)
-  defp format_key(key, { _, :existing_atom, _ }), do: :erlang.binary_to_existing_atom(key, :utf8)
-  defp format_key(key, { _, :attempt_atom, _ }) do
-    :erlang.binary_to_existing_atom(key, :utf8)
-  rescue
-    ArgumentError -> key
-  end
-  
-  defp start_object({ stack, config }), do: { [{ :object, %{} }] ++ stack, config }
-  
-  defp start_array({ stack, config }), do: { [{ :array, [] }] ++ stack, config }
-    
-  defp finish({ [{ :object, emptyMap }], config }) when is_map(emptyMap) and map_size(emptyMap) < 1 do
-    { %{}, config }
-  end
-  defp finish({ [{ :object, emptyMap }|rest], config }) when is_map(emptyMap) and map_size(emptyMap) < 1 do
-    insert(%{}, { rest, config })
-  end
-  defp finish({ [{ :object, pairs }], config }), do: { pairs, config }
-  defp finish({ [{ :object, pairs}|rest], config }), do: insert(pairs, { rest, config })
-  defp finish({ [{ :array, values }], config }), do: { Enum.reverse(values), config }
-  defp finish({ [{ :array, values}|rest], config}), do: insert(Enum.reverse(values), { rest, config })
-  defp finish(_), do: raise ArgumentError
-
-  defp insert(value, { [], config }), do: { value, config }
-  defp insert(key, { [{ :object, pairs }|rest], config }) do
-    { [{ :object, key, pairs }] ++ rest, config }
-  end
-  defp insert(value, { [{ :object, key, pairs }|rest], config }) do
-    { [{ :object, Map.put(pairs, key, value) }] ++ rest, config }
-  end
-  defp insert(value, { [{ :array, values}|rest], config }) do
-    { [{ :array, [value] ++ values}] ++ rest, config }
-  end
-  defp insert(_, _), do: raise ArgumentError
-
-  defp get_value({ value, _config }), do: value
-  defp get_value(_), do: raise ArgumentError
+  def handle_event({ :literal, :null }, state), do: :jsx_to_term.insert(:nil, state)
+  def handle_event(event, state), do: :jsx_to_term.handle_event(event, state)
 end
 
 defprotocol JSX.Encoder do
@@ -174,10 +128,6 @@ defimpl JSX.Encoder, for: List do
   defp unhitch([]), do: [:end_array]
 end
 
-defimpl JSX.Encoder, for: HashDict do
-  def json(dict), do: JSX.Encoder.json(HashDict.to_list(dict))
-end
-
 defimpl JSX.Encoder, for: Atom do
   def json(nil), do: [:null]
   def json(true), do: [true]
@@ -187,6 +137,16 @@ end
 
 defimpl JSX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
+end
+
+defimpl JSX.Encoder, for: HashDict do
+  def json(dict), do: JSX.Encoder.json(HashDict.to_list(dict))
+end
+
+defimpl JSX.Encoder, for: [Range, Stream, HashSet] do
+  def json(enumerable) do
+    JSX.Encoder.json(Enum.to_list(enumerable))
+  end
 end
 
 defimpl JSX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
