@@ -1,4 +1,4 @@
-# exjsx (v3.0.1) #
+# exjsx (v3.1.0) #
 
 [json][json] for [elixir][elixir]
  
@@ -33,15 +33,12 @@ copyright 2013 alisdair sullivan
   - [your lib sucks and encodes my records wrong](#your-lib-sucks-and-encodes-my-records-wrong)
   - [you forgot to document incompletes](#you-forgot-to-document-incompletes)
 * [options](#options)
-  - [replaced bad utf8](#replaced_bad_utf8)
   - [escaped forward slashes](#escaped_forward_slashes)
-  - [single quoted strings](#single_quoted_strings)
-  - [unescaped jsonp](#unescaped_jsonp)
-  - [comments](#comments)
   - [escaped strings](#escaped_strings)
-  - [ignored bad escapes](#ignored_bad_escapes)
+  - [uescape](#uescape)
+  - [unescaped jsonp](#unescaped_jsonp)
   - [dirty strings](#dirty_strings)
-  - [relax](#relax)
+  - [strict](#strict)
 * [exports](#exports)
   - [decode and decode!](#decodejson-opts)
   - [encode and encode!](#encodeterm-opts)
@@ -143,7 +140,7 @@ i'm not going to make any promises. **especially** not latin1
 `string`                        | `BitString`
 `true` and `false`              | `true` and `false`
 `null`                          | `nil`
-`array`                         | `List`
+`array`                         | `List` and `Enumerable`
 `object`                        | `%{}`, `[{}]`, `Dict` and `Struct`
 
 #### numbers ####
@@ -205,7 +202,8 @@ elixir atoms `true`, `false` and `nil`
 #### arrays ####
 
 json arrays are represented with elixir lists of json values as described 
-in this section
+in this section. elixir enumerables like `Stream`, `Range` and `HashSet` are
+serialized to json arrays
 
 #### objects ####
 
@@ -278,7 +276,13 @@ terms are converted into the appropriate codepoint while encoded terms are
 unaltered. this flag escapes strings as if for output in json, removing 
 control codes and problematic codepoints and replacing them with the 
 appropriate escapes
-    
+
+#### `uescape` ####
+
+escape all codepoints outside the ascii range for 7 bit clean output. note this 
+escaping takes place even if no other string escaping is requested (via 
+`escaped_strings`)
+
 #### `unescaped_jsonp` ####
 
 javascript interpreters treat the codepoints `u+2028` and `u+2029` as 
@@ -295,11 +299,6 @@ you'd like to force invalid strings into "json" you monster) use this flag
 to bypass escaping. this can also be used to read in **really** invalid json 
 strings. everything between unescaped quotes are passed as is to the resulting 
 string term. note that this takes precedence over any other options
-
-#### `:repeat_keys` ####
-
-this flag circumvents checking for repeated keys in generated json and may
-significantly improve encoding speed when encoding large proplists
 
 #### `strict` ####
 
@@ -320,6 +319,10 @@ possible. the following restrictions are available
 
     only keys and strings delimited by double quotes (`u+0022`) are allowed. the
     single quote (`u+0027`) results in `ArgumentError`  or `{:error, :badarg}`
+
+* `trailing_commas`
+
+    trailing commas in an object or list result in `badarg` errors
 
 * `:escapes`
 
