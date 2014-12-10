@@ -1,11 +1,11 @@
 Code.ensure_loaded?(Hex) and Hex.start
 
-defmodule JSX.Mixfile do
+defmodule EXJSX.Mixfile do
   use Mix.Project
 
   def project do
     [ app: :exjsx,
-      version: "3.0.0",
+      version: "3.1.0",
       elixir: ">= 0.13.3",
       description: description,
       package: package,
@@ -15,11 +15,11 @@ defmodule JSX.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [applications: ~w(jsx)a]
+    [applications: [:jsx]]
   end
 
   defp deps do
-    [{:jsx, "~> 2.3.0"}]
+    [{:jsx, "~> 2.4.0"}]
   end
   
   defp description do

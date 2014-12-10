@@ -163,6 +163,22 @@ defmodule JSX.Tests.Encode do
     assert(JSX.encode!(%{ "key" => true }) == "{\"key\":true}")
   end
 
+  test "encode range" do
+    assert(JSX.encode(0..9) == { :ok, "[0,1,2,3,4,5,6,7,8,9]" })
+  end
+
+  test "encode! range" do
+    assert(JSX.encode!(0..9) == "[0,1,2,3,4,5,6,7,8,9]")
+  end
+
+  test "encode HashSet" do
+    assert(JSX.encode(Enum.into([1, 2, 3], HashSet.new)) == { :ok, "[2,3,1]" })
+  end
+
+  test "encode! HashSet" do
+    assert(JSX.encode!(Enum.into([1, 2, 3], HashSet.new)) == "[2,3,1]")
+  end
+
   test "encode HashDict" do
     assert(JSX.encode(Enum.into([key: true], HashDict.new)) == { :ok, "{\"key\":true}" })
   end
