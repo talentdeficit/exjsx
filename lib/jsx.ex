@@ -82,6 +82,17 @@ defmodule JSX do
   end
 end
 
+defmodule JSX.Utils do
+  def encode_key(key)
+  when is_binary(key) or is_integer(key) do
+    key
+  end
+  def encode_key(key)
+  when is_atom(key) do
+    :erlang.atom_to_binary(key, :utf8)
+  end
+end
+
 defmodule JSX.Decoder do
   def init(opts) do
     :jsx_to_term.init(opts)
@@ -102,7 +113,7 @@ defimpl JSX.Encoder, for: Map do
   end
 
   defp unpack(map, [k|rest]) when is_integer(k) or is_binary(k) or is_atom(k) do
-    [k] ++ JSX.Encoder.json(Map.get(map, k)) ++ unpack(map, rest)
+    [JSX.Utils.encode_key(k)] ++ JSX.Encoder.json(Map.get(map, k)) ++ unpack(map, rest)
   end
   defp unpack(_, []), do: [:end_object]
 end
@@ -118,7 +129,7 @@ defimpl JSX.Encoder, for: List do
   end
 
   defp unzip([{k, v}|rest]) when is_integer(k) or is_binary(k) or is_atom(k) do
-    [k] ++ JSX.Encoder.json(v) ++ unzip(rest)
+    [encode_key(k)] ++ JSX.Encoder.json(v) ++ unzip(rest)
   end
   defp unzip([]), do: [:end_object]
 
