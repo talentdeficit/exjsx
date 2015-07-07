@@ -3,7 +3,7 @@ defmodule EXJSX.Mixfile do
 
   def project do
     [ app: :exjsx,
-      version: "3.1.0",
+      version: "3.2.0",
       elixir: ">= 0.13.3",
       description: description,
       package: package,
@@ -17,7 +17,7 @@ defmodule EXJSX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, "~> 2.4.0"}]
+    [{:jsx, "~> 2.6.2"}]
   end
   
   defp description do
