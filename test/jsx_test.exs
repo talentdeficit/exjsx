@@ -282,6 +282,6 @@ defmodule JSX.Tests.Errors do
   test "format :error", do: assert(JSX.format(:error) == { :error, :badarg })
   test "format! :error", do: assert_raise(ArgumentError, fn -> JSX.format!(:error) end)
 
-  test "encode self", do: assert(JSX.encode(self) == { :error, :badarg })
-  test "encode! self", do: assert_raise(ArgumentError, fn -> JSX.encode!(self) end)
+  test "encode self", do: assert(JSX.encode(self()) == { :error, :badarg })
+  test "encode! self", do: assert_raise(ArgumentError, fn -> JSX.encode!(self()) end)
 end
