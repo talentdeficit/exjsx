@@ -5,9 +5,10 @@ defmodule EXJSX.Mixfile do
     [ app: :exjsx,
       version: "3.2.0",
       elixir: ">= 0.13.3",
-      description: description,
-      package: package,
-      deps: deps
+      consolidate_protocols: Mix.env != :test,
+      description: description(),
+      package: package(),
+      deps: deps()
     ]
   end
 
@@ -19,13 +20,13 @@ defmodule EXJSX.Mixfile do
   defp deps do
     [{:jsx, "~> 2.6.2"}]
   end
-  
+
   defp description do
     """
     json for elixir
     """
   end
-  
+
   defp package do
     [
       files: ["lib", "LICENSE", "mix.exs", "README.md"],
