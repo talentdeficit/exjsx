@@ -18,7 +18,7 @@ defmodule EXJSX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, "~> 2.8.0"}]
+    [{:jsx, "~> 2.8.0"}, {:ex_doc, ">= 0.0.0", only: :dev}]
   end
 
   defp description do
@@ -39,6 +39,7 @@ defmodule EXJSX.Mixfile do
         "parroty",
         "yurii rashkovskii"
       ],
+      maintainers: ["@talentdeficit"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/talentdeficit/exjsx"}
     ]
