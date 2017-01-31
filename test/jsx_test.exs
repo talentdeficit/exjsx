@@ -172,11 +172,11 @@ defmodule JSX.Tests.Encode do
   end
 
   test "encode MapSet as sorted array" do
-    assert(JSX.encode(Enum.into([2, 1, 3], MapSet.new)) == { :ok, "[1,2,3]" })
+    assert(JSX.encode(Enum.into([1, 2, 3], MapSet.new)) == { :ok, "[1,2,3]" })
   end
 
   test "encode! MapSet as sorted array" do
-    assert(JSX.encode!(Enum.into([2, 1, 3], MapSet.new)) == "[1,2,3]")
+    assert(JSX.encode!(Enum.into([1, 2, 3], MapSet.new)) == "[1,2,3]")
   end
 
   test "encode object with bitstring key" do

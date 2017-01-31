@@ -139,12 +139,8 @@ defimpl JSX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSX.Encoder, for: [Range, Stream] do
+defimpl JSX.Encoder, for: [Range, Stream, MapSet] do
   def json(enumerable), do: enumerable |> Enum.to_list |> JSX.Encoder.json
-end
-
-defimpl JSX.Encoder, for: MapSet do
-  def json(enumerable), do: enumerable |> Enum.sort |> JSX.Encoder.json
 end
 
 defimpl JSX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
