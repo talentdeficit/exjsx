@@ -171,20 +171,12 @@ defmodule JSX.Tests.Encode do
     assert(JSX.encode!(0..9) == "[0,1,2,3,4,5,6,7,8,9]")
   end
 
-  test "encode HashSet" do
-    assert(JSX.encode(Enum.into([1, 2, 3], HashSet.new)) == { :ok, "[2,3,1]" })
+  test "encode MapSet as sorted array" do
+    assert(JSX.encode(Enum.into([2, 1, 3], MapSet.new)) == { :ok, "[1,2,3]" })
   end
 
-  test "encode! HashSet" do
-    assert(JSX.encode!(Enum.into([1, 2, 3], HashSet.new)) == "[2,3,1]")
-  end
-
-  test "encode HashDict" do
-    assert(JSX.encode(Enum.into([key: true], HashDict.new)) == { :ok, "{\"key\":true}" })
-  end
-
-  test "encode! HashDict" do
-    assert(JSX.encode!(Enum.into([key: true], HashDict.new)) == "{\"key\":true}")
+  test "encode! MapSet as sorted array" do
+    assert(JSX.encode!(Enum.into([2, 1, 3], MapSet.new)) == "[1,2,3]")
   end
 
   test "encode object with bitstring key" do
@@ -210,17 +202,13 @@ defmodule JSX.Tests.Encode do
   test "encode! compound object" do
     assert(JSX.encode!(compoundobj(:ex)) == compoundobj(:json))
   end
-  
+
   test "encode keylist with key `nil`" do
     assert(JSX.encode([nil: nil]) == { :ok, "{\"nil\":null}" })
   end
-  
+
   test "encode map with key `nil`" do
     assert(JSX.encode(%{ nil => nil }) == { :ok, "{\"nil\":null}" })
-  end
-  
-  test "encode HashDict with key `nil`" do
-    assert(JSX.encode(Enum.into([nil: nil], HashDict.new)) == { :ok, "{\"nil\":null}" })
   end
 end
 

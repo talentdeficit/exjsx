@@ -68,15 +68,15 @@ defmodule JSX do
   rescue
     _ -> false
   end
-  
+
   def encoder(handler, initialstate, opts) do
     :jsx.encoder(handler, initialstate, opts)
   end
-  
+
   def decoder(handler, initialstate, opts) do
     :jsx.decoder(handler, initialstate, opts)
   end
-  
+
   def parser(handler, initialstate, opts) do
     :jsx.parser(handler, initialstate, opts)
   end
@@ -139,14 +139,12 @@ defimpl JSX.Encoder, for: [Integer, Float, BitString] do
   def json(value), do: [value]
 end
 
-defimpl JSX.Encoder, for: HashDict do
-  def json(dict), do: JSX.Encoder.json(HashDict.to_list(dict))
+defimpl JSX.Encoder, for: [Range, Stream] do
+  def json(enumerable), do: enumerable |> Enum.to_list |> JSX.Encoder.json
 end
 
-defimpl JSX.Encoder, for: [Range, Stream, HashSet] do
-  def json(enumerable) do
-    JSX.Encoder.json(Enum.to_list(enumerable))
-  end
+defimpl JSX.Encoder, for: MapSet do
+  def json(enumerable), do: enumerable |> Enum.sort |> JSX.Encoder.json
 end
 
 defimpl JSX.Encoder, for: [Tuple, PID, Port, Reference, Function, Any] do
