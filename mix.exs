@@ -3,7 +3,7 @@ defmodule EXJSX.Mixfile do
 
   def project do
     [ app: :exjsx,
-      version: "3.2.1",
+      version: "4.0.0",
       elixir: ">= 0.13.3",
       consolidate_protocols: Mix.env != :test,
       description: description(),
@@ -18,7 +18,7 @@ defmodule EXJSX.Mixfile do
   end
 
   defp deps do
-    [{:jsx, "~> 2.8.0"}, {:ex_doc, ">= 0.0.0", only: :dev}]
+    [{:jsx, "~> 2.8.0"}, {:ex_doc, "~> 0.14", only: :dev}]
   end
 
   defp description do

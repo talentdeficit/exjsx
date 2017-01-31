@@ -1,4 +1,4 @@
-# exjsx (v3.2.1) #
+# exjsx (v4.0.0) #
 
 [json][json] for [elixir][elixir]
  
@@ -10,7 +10,7 @@ testing provided by [travis-ci][travis]
 
 exjsx is released under the terms of the [MIT][MIT] license
 
-copyright 2013 alisdair sullivan
+copyright 2013, 2014, 2015, 2016, 2017 alisdair sullivan
 
 
 ## index ##
@@ -59,7 +59,7 @@ $ mix compile
 $ mix test
 ```
 
-#### convert a json string into an elixir dict ####
+#### convert a json string into an elixir term ####
 
 ```iex
 iex> JSX.decode "{\"library\": \"jsx\", \"awesome\": true}"
@@ -68,7 +68,7 @@ iex> JSX.decode "[\"a\",\"list\",\"of\",\"words\"]"
 {:ok, ["a", "list", "of", "words"]}
 ```
 
-#### convert an elixir dict into a json string ####
+#### convert an elixir term into a json string ####
 
 ```iex
 iex> JSX.encode %{"library" => "jsx", "awesome" => true}
@@ -137,11 +137,11 @@ i'm not going to make any promises. **especially** not latin1
 **json**                        | **elixir**
 --------------------------------|--------------------------------
 `number`                        | `Float` and `Integer`
-`string`                        | `BitString`
+`string`                        | `String`
 `true` and `false`              | `true` and `false`
 `null`                          | `nil`
 `array`                         | `List` and `Enumerable`
-`object`                        | `%{}`, `[{}]`, `Dict` and `Struct`
+`object`                        | `Map`
 
 #### numbers ####
 
@@ -202,7 +202,7 @@ elixir atoms `true`, `false` and `nil`
 #### arrays ####
 
 json arrays are represented with elixir lists of json values as described 
-in this section. elixir enumerables like `Stream`, `Range` and `HashSet` are
+in this section. elixir enumerables like `Stream`, `Range` and `MapSet` are
 serialized to json arrays
 
 #### objects ####
